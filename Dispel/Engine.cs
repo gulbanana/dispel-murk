@@ -1,6 +1,4 @@
-﻿using Dispel.Parse;
-using System;
-using System.IO;
+﻿using System.IO;
 using System.Threading.Tasks;
 
 namespace Dispel
@@ -10,7 +8,7 @@ namespace Dispel
         public static async Task ConvertAsync(Stream input, Stream output, OutputFormat format)
         {
             var parser = LogParser.Log;
-            var generator = format == OutputFormat.Text ? (Func<Node, string>)TextGenerator.Format : PageGenerator.Format;
+            var generator = Formats.GetGenerator(format);
 
             using (var reader = new StreamReader(input))
             using (var writer = new StreamWriter(output))

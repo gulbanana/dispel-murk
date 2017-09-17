@@ -4,5 +4,6 @@
     {
         Text,
         HTML,
+        Wiki,
     }
 }

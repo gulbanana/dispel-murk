@@ -12,19 +12,21 @@ namespace Dispel.CommandLine
         public static async Task Main(string[] args)
         {
             IReadOnlyList<string> logPaths = Array.Empty<string>();
-            var format = "html";
+            var formatName = "html";
 
             ArgumentSyntax.Parse(args, syntax =>
             {
-                syntax.DefineOption("f|format", ref format, "output format - 'html' or 'text'");
+                syntax.DefineOption("f|format", ref formatName, "output format - html/text/wiki");
                 syntax.DefineParameterList("logs", ref logPaths, "log files to convert");
             });
 
-            if (format != "html" && format != "text")
+            if (formatName != "html" && formatName != "text" && formatName != "wiki")
             {
-                Console.WriteLine($"Unrecognised format {format}!");
+                Console.WriteLine($"Unrecognised format {formatName}!");
                 return;
             }
+
+            var format = Formats.Parse(formatName);
 
             if (!logPaths.Any())
             {
@@ -48,12 +50,12 @@ namespace Dispel.CommandLine
                 var inputFile = Path.GetFullPath(logPath);
                 Console.WriteLine($"Processing {inputFile}...");
 
-                var outputFile = Path.ChangeExtension(inputFile, format == "html" ? "html" : "txt");
+                var outputFile = Path.ChangeExtension(inputFile, Formats.GetFileExtension(format));
                 using (var inputStream = File.OpenRead(inputFile))
                 {
                     using (var outputStream = File.OpenWrite(outputFile))
                     {
-                        await Engine.ConvertAsync(inputStream, outputStream, format == "html" ? OutputFormat.HTML : OutputFormat.Text);
+                        await Engine.ConvertAsync(inputStream, outputStream, format);
                     }
                 }
 
