@@ -10,7 +10,7 @@ namespace Dispel
     {
         private const string template = @"<!DOCTYPE html>
 <meta charset=""utf-8"">
-<title>Test Page</title>
+<title>mIRC Logfile</title>
 <style>
 body {
     font-family: -apple-system, BlinkMacSystemFont, ""Segoe UI"", Roboto, Oxygen-Sans, Ubuntu, Cantarell, ""Helvetica Neue"", sans-serif;
