@@ -10,22 +10,37 @@ namespace Dispel.CommandLine
     {
         static void Main(string[] args)
         {
-            IReadOnlyList<string> logFiles = Array.Empty<string>();
+            IReadOnlyList<string> logPaths = Array.Empty<string>();
 
             ArgumentSyntax.Parse(args, syntax =>
             {
-                syntax.DefineParameterList("logs", ref logFiles, "log files to convert");
+                syntax.DefineParameterList("logs", ref logPaths, "log files or directories to convert");
             });
 
-            if (!logFiles.Any())
+            if (!logPaths.Any())
             {
-                logFiles = Directory.EnumerateFiles(".", "*.log").ToArray();
+                logPaths = Directory.EnumerateFiles(".", "*.log").ToArray();
             }
 
-            foreach (var logFile in logFiles)
+            foreach (var logPath in logPaths)
             {
-                var fullPath = Path.GetFullPath(logFile);
-                Console.WriteLine($"Processing {fullPath}...");
+                if (!File.Exists(logPath))
+                {
+                    Console.WriteLine($"File not found: {logPath}");
+                    continue;
+                }
+
+                var logFile = Path.GetFullPath(logPath);
+                Console.WriteLine($"Processing {logFile}...");
+
+                var htmlFile = Path.ChangeExtension(logFile, "html");
+                using (var inputStream = File.OpenRead(logFile))
+                {
+                    using (var outputStream = File.OpenWrite(htmlFile))
+                    {
+                        Engine.Convert(inputStream, outputStream);
+                    }
+                }
             }
         }
     }
