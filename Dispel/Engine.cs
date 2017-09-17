@@ -15,16 +15,17 @@ namespace Dispel
             using (var reader = new StreamReader(input))
             using (var writer = new StreamWriter(output))
             {
-                var text = await reader.ReadToEndAsync();
+                var inputText = await reader.ReadToEndAsync();
 
-                var result = parser(text);
+                var result = parser(inputText);
                 if (!result.IsSuccess)
                 {
                     writer.WriteLine($"parse error! expected: {result.Expected}; found: '{result.Remainder}'");
                 }
                 else
                 {
-                    await writer.WriteLineAsync(generator(result.Tree));
+                    var outputText = generator(result.Tree);
+                    await writer.WriteLineAsync(outputText);
                 }
 
                 await writer.FlushAsync();

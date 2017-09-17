@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.CommandLine;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Dispel.CommandLine
 {
     public static class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             IReadOnlyList<string> logPaths = Array.Empty<string>();
             var format = "html";
@@ -40,7 +41,7 @@ namespace Dispel.CommandLine
             {
                 if (!File.Exists(logPath))
                 {
-                    Console.WriteLine($"File not found: {logPath}");
+                    Console.WriteLine($"File not found: {logPath}!");
                     continue;
                 }
 
@@ -52,7 +53,7 @@ namespace Dispel.CommandLine
                 {
                     using (var outputStream = File.OpenWrite(outputFile))
                     {
-                        Engine.ConvertAsync(inputStream, outputStream, format == "html" ? OutputFormat.HTML : OutputFormat.Text).Wait();
+                        await Engine.ConvertAsync(inputStream, outputStream, format == "html" ? OutputFormat.HTML : OutputFormat.Text);
                     }
                 }
 

@@ -2,6 +2,7 @@ using Dispel.CommandLine;
 using System;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 
 public class CLI : IDisposable
@@ -27,54 +28,54 @@ Session Close: Tue Jan 03 18:33:05 2017
     }
 
     [Fact]
-    public void SpecifySingleFile()
+    public async Task SpecifySingleFile()
     {
         using (var writer = File.CreateText("cliTests/foo.log"))
         {
             writer.Write(singleSession);
         }
 
-        Program.Main(new[] { "cliTests/foo.log" });
+        await Program.Main(new[] { "cliTests/foo.log" });
 
         Assert.True(File.Exists("cliTests/foo.html"));
     }
 
     [Fact]
-    public void SpecifyMultipleFiles()
+    public async Task SpecifyMultipleFiles()
     {
         using (var writer = File.CreateText("cliTests/1.log")) writer.Write(singleSession);
         using (var writer = File.CreateText("cliTests/2.log")) writer.Write(singleSession);
 
-        Program.Main(new[] { "cliTests/1.log", "cliTests/2.log" });
+        await Program.Main(new[] { "cliTests/1.log", "cliTests/2.log" });
 
         Assert.True(File.Exists("cliTests/1.html"));
         Assert.True(File.Exists("cliTests/2.html"));
     }
 
     [Fact]
-    public void OmitFile()
+    public async Task OmitFile()
     {
         using (var writer = File.CreateText("cliTests/1.log")) writer.Write(singleSession);
         using (var writer = File.CreateText("cliTests/2.log")) writer.Write(singleSession);
 
-        Program.Main(new[] { "cliTests/1.log" });
+        await Program.Main(new[] { "cliTests/1.log" });
 
         Assert.True(File.Exists("cliTests/1.html"));
         Assert.False(File.Exists("cliTests/2.html"));
     }
 
     [Fact]
-    public void TolerateMissingFile()
+    public async Task TolerateMissingFile()
     {
         using (var writer = File.CreateText("cliTests/1.log")) writer.Write(singleSession);
 
-        Program.Main(new[] { "cliTests/1.log", "cliTests/2.log" });
+        await Program.Main(new[] { "cliTests/1.log", "cliTests/2.log" });
 
         Assert.True(File.Exists("cliTests/1.html"));
     }
 
     [Fact]
-    public void AllLogFilesInCurrentDirectory()
+    public async Task AllLogFilesInCurrentDirectory()
     {
         using (var writer = File.CreateText("cliTests/1.log")) writer.Write(singleSession);
         using (var writer = File.CreateText("cliTests/2.frog")) writer.Write(singleSession);
@@ -82,7 +83,7 @@ Session Close: Tue Jan 03 18:33:05 2017
 
         Environment.CurrentDirectory = Path.Combine(Path.GetTempPath(), "cliTests");
 
-        Program.Main(Array.Empty<string>());
+        await Program.Main(Array.Empty<string>());
 
         Environment.CurrentDirectory = Path.Combine(Path.GetTempPath());
 
@@ -92,40 +93,52 @@ Session Close: Tue Jan 03 18:33:05 2017
     }
 
     [Fact]
-    public void FormatHTMLExplicitly()
+    public async Task NoLogFilesInCurrentDirectory()
+    {
+        Environment.CurrentDirectory = Path.Combine(Path.GetTempPath(), "cliTests");
+
+        await Program.Main(Array.Empty<string>());
+
+        Environment.CurrentDirectory = Path.Combine(Path.GetTempPath());
+
+        Assert.Empty(Directory.EnumerateFiles("cliTests/"));
+    }
+
+    [Fact]
+    public async Task FormatHTMLExplicitly()
     {
         using (var writer = File.CreateText("cliTests/foo.log"))
         {
             writer.Write(singleSession);
         }
 
-        Program.Main(new[] { "-f", "html", "cliTests/foo.log" });
+        await Program.Main(new[] { "-f", "html", "cliTests/foo.log" });
 
         Assert.True(File.Exists("cliTests/foo.html"));
     }
 
     [Fact]
-    public void FormatTextExplicitly()
+    public async Task FormatTextExplicitly()
     {
         using (var writer = File.CreateText("cliTests/foo.log"))
         {
             writer.Write(singleSession);
         }
 
-        Program.Main(new[] { "-f", "text", "cliTests/foo.log" });
+        await Program.Main(new[] { "-f", "text", "cliTests/foo.log" });
 
         Assert.True(File.Exists("cliTests/foo.txt"));
     }
 
     [Fact]
-    public void IgnoreUnknownFormat()
+    public async Task IgnoreUnknownFormat()
     {
         using (var writer = File.CreateText("cliTests/foo.log"))
         {
             writer.Write(singleSession);
         }
 
-        Program.Main(new[] { "-f", "what", "cliTests/foo.log" });
+        await Program.Main(new[] { "-f", "what", "cliTests/foo.log" });
 
         Assert.Single(Directory.EnumerateFiles("cliTests/"));
     }
