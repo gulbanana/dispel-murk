@@ -31,7 +31,7 @@ namespace Dispel.CommandLine
                 }
 
                 var logFile = Path.GetFullPath(logPath);
-                Console.WriteLine($"Processing {logFile}...");
+                Console.WriteLine($"Processing {logFile}");
 
                 var htmlFile = Path.ChangeExtension(logFile, "html");
                 using (var inputStream = File.OpenRead(logFile))
@@ -41,6 +41,8 @@ namespace Dispel.CommandLine
                         Engine.Convert(inputStream, outputStream);
                     }
                 }
+
+                Console.WriteLine($"Created {htmlFile}");
             }
         }
     }

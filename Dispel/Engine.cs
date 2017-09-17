@@ -6,7 +6,17 @@ namespace Dispel
     {
         public static void Convert(Stream input, Stream output)
         {
-            input.CopyTo(output);
+            using (var reader = new StreamReader(input))
+            using (var writer = new StreamWriter(output))
+            {
+                while (!reader.EndOfStream)
+                {
+                    var line = reader.ReadLine();
+                    writer.WriteLine(line);
+                }
+
+                writer.Flush();
+            }
         }
     }
 }
