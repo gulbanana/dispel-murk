@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26730.12
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dispel.Console", "Dispel.Console\Dispel.Console.csproj", "{A6FE9B2A-DF66-4149-9947-C5B034891792}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dispel.CommandLine", "Dispel.CommandLine\Dispel.CommandLine.csproj", "{A6FE9B2A-DF66-4149-9947-C5B034891792}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
