@@ -12,7 +12,7 @@ namespace Dispel
         public static readonly Parser Attribute = Any(ToggleBold, ToggleItalic, ToggleUnderline, SetColor, FullReset);
 
         public static readonly Parser Text = Term(@"[^\x02\x03\x0F\x1D\x1F]+");
-        public static readonly Parser Attributes = Optional(Set(Attribute));
+        public static readonly Parser Attributes = Set(Attribute);
         public static readonly Parser Run = Sequence(Attributes, Text);
         public static readonly Parser AttributedText = Sequence(Set(Run), Attributes);
 

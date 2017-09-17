@@ -81,7 +81,35 @@ namespace Dispel
             return Sequence(nodes => new Node(NodeType.Sequence, null, nodes), parsers);
         }
 
+        /// <summary>0 or more</summary>
         public static Parser Set(Parser parser)
+        {
+            return text =>
+            {
+                var nodes = new List<Node>();
+
+                ParseResult r;
+                do
+                {
+                    r = parser(text);
+                    if (r.IsSuccess)
+                    {
+                        nodes.Add(r.Tree);
+                        text = r.Remainder;
+                    }
+                } while (r.IsSuccess);
+
+                if (nodes.Count == 0)
+                    return ParseResult.Empty(text);
+                else if (nodes.Count == 1)
+                    return ParseResult.Success(nodes.Single(), text);
+                else
+                    return ParseResult.Success(new Node(NodeType.Sequence, null, nodes), text);
+            };
+        }
+
+        /// <summary>1 or more</summary>
+        public static Parser RequiredSet(Parser parser)
         {
             return text =>
             {

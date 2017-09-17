@@ -45,6 +45,15 @@ namespace Parse
             Assert.True(r.IsSuccess);
             Assert.Empty(r.Remainder);
         }
+
+        [Fact]
+        public void FinalAttributeWithoutRuns()
+        {
+            var text = "\x0002";
+            var r = LogParser.AttributedText(text);
+            Assert.True(r.IsSuccess);
+            Assert.Empty(r.Remainder);
+        }
     }
 
     public class Color
