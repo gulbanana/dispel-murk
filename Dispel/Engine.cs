@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Dispel.Parse;
+using System;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -15,6 +16,7 @@ namespace Dispel
             using (var writer = new StreamWriter(output))
             {
                 var text = await reader.ReadToEndAsync();
+
                 var result = parser(text);
                 if (!result.IsSuccess)
                 {

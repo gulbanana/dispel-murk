@@ -1,5 +1,6 @@
-﻿using static Dispel.Parse;
+﻿using static Dispel.Parse.Combinators;
 using static Dispel.LogNode;
+using Dispel.Parse;
 
 namespace Dispel
 {

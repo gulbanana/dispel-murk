@@ -3,11 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace Dispel
+namespace Dispel.Parse
 {
-    public delegate ParseResult Parser(string input);
-
-    static class Parse
+    public static class Combinators
     {
         const RegexOptions _RegexOpts = RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.IgnorePatternWhitespace;
 

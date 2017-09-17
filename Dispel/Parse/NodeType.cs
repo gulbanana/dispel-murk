@@ -1,4 +1,4 @@
-﻿namespace Dispel
+﻿namespace Dispel.Parse
 {
     public enum NodeType
     {
