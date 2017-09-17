@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Dispel
@@ -18,14 +19,34 @@ namespace Dispel
                 case NodeType.Empty:
                     break;
 
-                case NodeType.Literal:
+                case NodeType.Term:
                     yield return node.Text;
                     break;
 
                 case NodeType.Sequence:
+                    if (node.Subtype == LogNode.SEQ_USER)
+                    {
+                        yield return " <";
+                    }
+
                     foreach (var child in node.Children.SelectMany(Flatten))
+                    {
                         yield return child;
+                    }
+
+                    if (node.Subtype == LogNode.SEQ_USER)
+                    {
+                        yield return "> ";
+                    }
+                    else if (node.Subtype == LogNode.SEQ_LINE)
+                    {
+                        yield return Environment.NewLine;
+                    }
+
                     break;
+
+                default:
+                    throw new Exception($"Unknown node type {node.Type}");
             }
         }
     }

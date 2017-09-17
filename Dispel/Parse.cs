@@ -26,7 +26,7 @@ namespace Dispel
             }
         }
 
-        public static Parser Term(string pattern, Func<Match, string> extract, NodeType type = NodeType.Literal)
+        public static Parser Term(int subtype, string pattern, Func<Match, string> extract)
         {
             if (pattern == null) throw new ArgumentNullException("pattern");
 
@@ -37,14 +37,15 @@ namespace Dispel
                 var m = Consume(ref text, regex);
                 if (m == null) return ParseResult.Failure(text, pattern);
 
-                return ParseResult.Success(new Node(type, extract(m)), text);
+                return ParseResult.Success(new Node(NodeType.Term, subtype, extract(m)), text);
             };
         }
 
-        public static Parser Term(string pattern, NodeType type = NodeType.Literal)
-        {
-            return Term(pattern, m => m.Value, type);
-        }
+        public static Parser Term(string pattern, Func<Match, string> extract) => Term(0, pattern, extract);
+
+        public static Parser Term(int subtype, string pattern) => Term(subtype, pattern, m => m.Value);
+
+        public static Parser Term(string pattern) => Term(0, pattern, m => m.Value);
 
         public static Parser Optional(Parser p)
         {
@@ -54,7 +55,7 @@ namespace Dispel
                 if (r.IsSuccess)
                     return r;
                 else
-                    return ParseResult.Empty(r.Remainder);
+                    return ParseResult.None(r.Remainder);
             };
         }
 
@@ -76,9 +77,14 @@ namespace Dispel
             };
         }
 
+        public static Parser Sequence(int subtype, params Parser[] parsers)
+        {
+            return Sequence(nodes => new Node(NodeType.Sequence, subtype, null, nodes), parsers);
+        }
+
         public static Parser Sequence(params Parser[] parsers)
         {
-            return Sequence(nodes => new Node(NodeType.Sequence, null, nodes), parsers);
+            return Sequence(0, parsers);
         }
 
         /// <summary>0 or more</summary>
@@ -100,11 +106,11 @@ namespace Dispel
                 } while (r.IsSuccess);
 
                 if (nodes.Count == 0)
-                    return ParseResult.Empty(text);
+                    return ParseResult.None(text);
                 else if (nodes.Count == 1)
                     return ParseResult.Success(nodes.Single(), text);
                 else
-                    return ParseResult.Success(new Node(NodeType.Sequence, null, nodes), text);
+                    return ParseResult.Success(new Node(NodeType.Sequence, 0, null, nodes), text);
             };
         }
 
@@ -131,7 +137,7 @@ namespace Dispel
                 else if (nodes.Count == 1)
                     return ParseResult.Success(nodes.Single(), text);
                 else
-                    return ParseResult.Success(new Node(NodeType.Sequence, null, nodes), text);
+                    return ParseResult.Success(new Node(NodeType.Sequence, 0, null, nodes), text);
             };
         }
 
@@ -162,7 +168,7 @@ namespace Dispel
                 if (!r.IsSuccess)
                     return r;
                 else
-                    return ParseResult.Empty(r.Remainder);
+                    return ParseResult.None(r.Remainder);
             };
         }
     }

@@ -52,7 +52,7 @@ namespace Dispel.CommandLine
                 {
                     using (var outputStream = File.OpenWrite(outputFile))
                     {
-                        Engine.Convert(inputStream, outputStream, format == "html" ? OutputFormat.HTML : OutputFormat.Text);
+                        Engine.ConvertAsync(inputStream, outputStream, format == "html" ? OutputFormat.HTML : OutputFormat.Text).Wait();
                     }
                 }
 

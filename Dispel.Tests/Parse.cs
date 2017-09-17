@@ -1,4 +1,5 @@
 ﻿using Dispel;
+using System;
 using Xunit;
 
 namespace Parse
@@ -124,9 +125,22 @@ namespace Parse
         [Fact]
         public void NarrativeAfterDialogue()
         {
-            var input = @"[13:02] <03Quaker> 1“Please, lead the way.” 13Claudio will follow the sailor. ";
-            var r = LogParser.Line(input);
+            var input = @"[13:02] <03Quaker> 1“Please, lead the way.” 13Claudio will follow the sailor.";
+            var r = LogParser.MessageLine(input);
             Assert.True(r.IsSuccess);
         }
     }
+
+    public class Log
+    {
+        [Fact]
+        public void Multiline()
+        {
+            var input = "[00:01] <\x000303player1\x000f> foo" + Environment.NewLine + "[00:02] <\x000303player2\x000f> bar" + Environment.NewLine;
+            var r = LogParser.Log(input);
+            Assert.True(r.IsSuccess);
+            Assert.Empty(r.Remainder);
+        }
+    }
+
 }

@@ -1,33 +1,31 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace Dispel
 {
     public static class Engine
     {
-        public static void Convert(Stream input, Stream output, OutputFormat format)
+        public static async Task ConvertAsync(Stream input, Stream output, OutputFormat format)
         {
-            var parser = LogParser.Line;
+            var parser = LogParser.Log;
             var generator = format == OutputFormat.Text ? (Func<Node, string>)TextGenerator.Format : PageGenerator.Format;
 
             using (var reader = new StreamReader(input))
             using (var writer = new StreamWriter(output))
             {
-                while (!reader.EndOfStream)
+                var text = await reader.ReadToEndAsync();
+                var result = parser(text);
+                if (!result.IsSuccess)
                 {
-                    var line = reader.ReadLine();
-                    var result = parser(line);
-                    if (!result.IsSuccess)
-                    {
-                        writer.WriteLine($"parse error! expected: {result.Expected}; found: '{result.Remainder}'");
-                    }
-                    else
-                    {
-                        writer.WriteLine(generator(result.Tree));
-                    }
+                    writer.WriteLine($"parse error! expected: {result.Expected}; found: '{result.Remainder}'");
+                }
+                else
+                {
+                    await writer.WriteLineAsync(generator(result.Tree));
                 }
 
-                writer.Flush();
+                await writer.FlushAsync();
             }
         }
     }
