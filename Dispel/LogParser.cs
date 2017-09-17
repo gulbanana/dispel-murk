@@ -7,7 +7,7 @@ namespace Dispel
         public static readonly Parser ToggleBold = Skip(Term(@"\x02"));
         public static readonly Parser ToggleItalic = Skip(Term(@"\x1D"));
         public static readonly Parser ToggleUnderline = Skip(Term(@"\x1F"));
-        public static readonly Parser SetColor = Skip(Term(@"\x03(\d\d?)"));
+        public static readonly Parser SetColor = Skip(Term(@"\x03(\d\d?,\d\d?|\d\d?|)"));
         public static readonly Parser FullReset = Skip(Term(@"\x0F"));
         public static readonly Parser Attribute = Any(ToggleBold, ToggleItalic, ToggleUnderline, SetColor, FullReset);
 

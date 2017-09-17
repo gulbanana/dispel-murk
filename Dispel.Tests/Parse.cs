@@ -50,6 +50,14 @@ namespace Parse
     public class Color
     {
         [Fact]
+        public void Reset()
+        {
+            var text = "\x0003";
+            var r = LogParser.SetColor(text);
+            Assert.True(r.IsSuccess);
+        }
+
+        [Fact]
         public void SingleDigit()
         {
             var text = "\x00031";
@@ -63,6 +71,15 @@ namespace Parse
             var text = "\x000301";
             var r = LogParser.SetColor(text);
             Assert.True(r.IsSuccess);
+        }
+
+        [Theory, InlineData("1,1"), InlineData("01,1"), InlineData("1,01"), InlineData("01,01")]
+        public void WithBackground(string input)
+        {
+            input = "\x0003" + input;
+            var r = LogParser.SetColor(input);
+            Assert.True(r.IsSuccess);
+            Assert.Empty(r.Remainder);
         }
     }
 
