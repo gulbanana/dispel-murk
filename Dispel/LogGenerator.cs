@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace Dispel
 {
-    /// <summary>output a mIRC format log file</summary>
+    /// <summary>output a plaintext log file</summary>
     static class LogGenerator
     {
         public static string Format(Node tree)

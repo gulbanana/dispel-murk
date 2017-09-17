@@ -20,5 +20,24 @@
             IsSuccess = isSuccess;
             Expected = expected;
         }
+
+        public override string ToString()
+        {
+            if (IsSuccess)
+            {
+                if (!string.IsNullOrEmpty(Remainder))
+                {
+                    return $"Success: {Tree}";
+                }
+                else
+                { 
+                    return $"Success: {Tree}, {Remainder}";
+                }
+            }
+            else
+            {
+                return $"Failure: expected '{Expected}' but found '{Remainder}'";
+            }
+        }
     }
 }
