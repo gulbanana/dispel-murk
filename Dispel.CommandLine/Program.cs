@@ -11,15 +11,29 @@ namespace Dispel.CommandLine
         public static void Main(string[] args)
         {
             IReadOnlyList<string> logPaths = Array.Empty<string>();
+            var format = "html";
 
             ArgumentSyntax.Parse(args, syntax =>
             {
-                syntax.DefineParameterList("logs", ref logPaths, "log files or directories to convert");
+                syntax.DefineOption("f|format", ref format, "output format - 'html' or 'text'");
+                syntax.DefineParameterList("logs", ref logPaths, "log files to convert");
             });
+
+            if (format != "html" && format != "text")
+            {
+                Console.WriteLine($"Unrecognised format {format}!");
+                return;
+            }
 
             if (!logPaths.Any())
             {
                 logPaths = Directory.EnumerateFiles(".", "*.log").ToArray();
+            }
+
+            if (!logPaths.Any())
+            {
+                Console.WriteLine("No logs to process!");
+                return;
             }
 
             foreach (var logPath in logPaths)
@@ -30,19 +44,19 @@ namespace Dispel.CommandLine
                     continue;
                 }
 
-                var logFile = Path.GetFullPath(logPath);
-                Console.WriteLine($"Processing {logFile}");
+                var inputFile = Path.GetFullPath(logPath);
+                Console.WriteLine($"Processing {inputFile}...");
 
-                var htmlFile = Path.ChangeExtension(logFile, "html");
-                using (var inputStream = File.OpenRead(logFile))
+                var outputFile = Path.ChangeExtension(inputFile, format == "html" ? "html" : "txt");
+                using (var inputStream = File.OpenRead(inputFile))
                 {
-                    using (var outputStream = File.OpenWrite(htmlFile))
+                    using (var outputStream = File.OpenWrite(outputFile))
                     {
-                        Engine.Convert(inputStream, outputStream);
+                        Engine.Convert(inputStream, outputStream, format == "html" ? OutputFormat.HTML : OutputFormat.Text);
                     }
                 }
 
-                Console.WriteLine($"Created {htmlFile}");
+                Console.WriteLine($"Created {outputFile}.");
             }
         }
     }

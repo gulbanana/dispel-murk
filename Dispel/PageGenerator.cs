@@ -3,8 +3,8 @@ using System.Linq;
 
 namespace Dispel
 {
-    /// <summary>output a plaintext log file</summary>
-    static class LogGenerator
+    /// <summary>output HTML</summary>
+    static class PageGenerator
     {
         public static string Format(Node tree)
         {

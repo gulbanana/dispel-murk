@@ -1,6 +1,7 @@
 using Dispel.CommandLine;
 using System;
 using System.IO;
+using System.Linq;
 using Xunit;
 
 public class CLI : IDisposable
@@ -88,5 +89,44 @@ Session Close: Tue Jan 03 18:33:05 2017
         Assert.True(File.Exists("cliTests/1.html"));
         Assert.False(File.Exists("cliTests/2.html"));
         Assert.True(File.Exists("cliTests/3.html"));
+    }
+
+    [Fact]
+    public void FormatHTMLExplicitly()
+    {
+        using (var writer = File.CreateText("cliTests/foo.log"))
+        {
+            writer.Write(singleSession);
+        }
+
+        Program.Main(new[] { "-f", "html", "cliTests/foo.log" });
+
+        Assert.True(File.Exists("cliTests/foo.html"));
+    }
+
+    [Fact]
+    public void FormatTextExplicitly()
+    {
+        using (var writer = File.CreateText("cliTests/foo.log"))
+        {
+            writer.Write(singleSession);
+        }
+
+        Program.Main(new[] { "-f", "text", "cliTests/foo.log" });
+
+        Assert.True(File.Exists("cliTests/foo.txt"));
+    }
+
+    [Fact]
+    public void IgnoreUnknownFormat()
+    {
+        using (var writer = File.CreateText("cliTests/foo.log"))
+        {
+            writer.Write(singleSession);
+        }
+
+        Program.Main(new[] { "-f", "what", "cliTests/foo.log" });
+
+        Assert.Single(Directory.EnumerateFiles("cliTests/"));
     }
 }
