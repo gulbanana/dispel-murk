@@ -1,4 +1,5 @@
 ﻿using Dispel.Parse;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -10,12 +11,28 @@ namespace Dispel
         private const string template = @"<!DOCTYPE html>
 <meta charset=""utf-8"">
 <title>Test Page</title>
-{0}";
+<style>
+body {
+    font-family: -apple-system, BlinkMacSystemFont, ""Segoe UI"", Roboto, Oxygen-Sans, Ubuntu, Cantarell, ""Helvetica Neue"", sans-serif;
+    color: rgb(15, 15, 15);
+}
+p.line {
+    margin: 0;
+    padding: 0;
+}
+span.user {
+    font-weight: bold;
+}
+span.timestamp {
+    color: rgb(128, 128, 128);
+}
+</style>
+";
 
         public static string Format(Node tree)
         {
             var content = string.Join("", Flatten(tree));
-            return string.Format(template, content);
+            return template + content;
         }
 
         private static IEnumerable<string> Flatten(Node node)
@@ -26,17 +43,25 @@ namespace Dispel
                     break;
 
                 case NodeType.Term:
-                    yield return node.Text;
+                    if (node.Subtype == LogNode.TERM_TIMESTAMP)
+                    {
+                        yield return $"<span class='timestamp'>{node.Text}</span>";
+                    }
+                    else
+                    {
+                        yield return node.Text;
+                    }
+
                     break;
 
                 case NodeType.Sequence:
                     if (node.Subtype == LogNode.SEQ_USER)
                     {
-                        yield return " &lt;";
+                        yield return " <span class='user'>&lt;";
                     }
                     else if (node.Subtype == LogNode.SEQ_LINE)
                     {
-                        yield return "<p>";
+                        yield return "<p class='line'>";
                     }
 
                     foreach (var child in node.Children.SelectMany(Flatten))
@@ -46,11 +71,11 @@ namespace Dispel
 
                     if (node.Subtype == LogNode.SEQ_USER)
                     {
-                        yield return "&gt; ";
+                        yield return "&gt;</span> ";
                     }
                     else if (node.Subtype == LogNode.SEQ_LINE)
                     {
-                        yield return "</p>";
+                        yield return "</p>" + Environment.NewLine;
                     }
 
                     break;

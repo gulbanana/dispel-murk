@@ -21,7 +21,18 @@ namespace Dispel
                     break;
 
                 case NodeType.Term:
+                    if (node.Subtype == LogNode.TERM_TIMESTAMP)
+                    {
+                        yield return "[";
+                    }
+
                     yield return node.Text;
+
+                    if (node.Subtype == LogNode.TERM_TIMESTAMP)
+                    {
+                        yield return "]";
+                    }
+
                     break;
 
                 case NodeType.Sequence:
