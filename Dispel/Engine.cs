@@ -12,11 +12,21 @@ namespace Dispel
                 while (!reader.EndOfStream)
                 {
                     var line = reader.ReadLine();
-                    writer.WriteLine(line);
+                    writer.WriteLine(ConvertLine(line));
                 }
 
                 writer.Flush();
             }
+        }
+
+        static string ConvertLine(string input)
+        {
+            var parser = LogParser.Line;
+
+            var r = parser(input);
+            if (!r.IsSuccess) return $"parse error! expected: {r.Expected}; found: '{r.Remainder}'";
+
+            return LogGenerator.Format(r.Tree);
         }
     }
 }
