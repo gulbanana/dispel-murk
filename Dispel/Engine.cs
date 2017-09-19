@@ -20,6 +20,10 @@ namespace Dispel
                 {
                     writer.WriteLine($"parse error! expected: {result.Expected}; found: '{result.Remainder}'");
                 }
+                else if (result.Tree.Type == Parse.NodeType.Empty)
+                {
+                    writer.WriteLine($"parse succeeded, but no AST produced");
+                }
                 else
                 {
                     var outputText = generator(result.Tree);

@@ -35,7 +35,7 @@ namespace Dispel.Parse
                 var m = Consume(ref text, regex);
                 if (m == null) return ParseResult.Failure(text, pattern);
 
-                return ParseResult.Success(new Node(NodeType.Term, subtype, extract(m)), text);
+                return ParseResult.Success(new Node(NodeType.Terminal, subtype, extract(m)), text);
             };
         }
 
@@ -77,7 +77,7 @@ namespace Dispel.Parse
 
         public static Parser Sequence(int subtype, params Parser[] parsers)
         {
-            return Sequence(nodes => new Node(NodeType.Sequence, subtype, null, nodes), parsers);
+            return Sequence(nodes => new Node(NodeType.Production, subtype, null, nodes), parsers);
         }
 
         public static Parser Sequence(params Parser[] parsers)
@@ -108,7 +108,7 @@ namespace Dispel.Parse
                 else if (nodes.Count == 1)
                     return ParseResult.Success(nodes.Single(), text);
                 else
-                    return ParseResult.Success(new Node(NodeType.Sequence, 0, null, nodes), text);
+                    return ParseResult.Success(new Node(NodeType.Production, 0, null, nodes), text);
             };
         }
 
@@ -135,7 +135,7 @@ namespace Dispel.Parse
                 else if (nodes.Count == 1)
                     return ParseResult.Success(nodes.Single(), text);
                 else
-                    return ParseResult.Success(new Node(NodeType.Sequence, 0, null, nodes), text);
+                    return ParseResult.Success(new Node(NodeType.Production, 0, null, nodes), text);
             };
         }
 

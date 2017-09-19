@@ -39,10 +39,7 @@ span.timestamp {
         {
             switch (node.Type)
             {
-                case NodeType.Empty:
-                    break;
-
-                case NodeType.Term:
+                case NodeType.Terminal:
                     if (node.Subtype == LogNode.TERM_TIMESTAMP)
                     {
                         yield return $"<span class='timestamp'>{node.Text}</span>";
@@ -54,7 +51,7 @@ span.timestamp {
 
                     break;
 
-                case NodeType.Sequence:
+                case NodeType.Production:
                     if (node.Subtype == LogNode.SEQ_USER)
                     {
                         yield return " <span class='user'>&lt;";

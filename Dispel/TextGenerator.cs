@@ -17,10 +17,7 @@ namespace Dispel
         {
             switch (node.Type)
             {
-                case NodeType.Empty:
-                    break;
-
-                case NodeType.Term:
+                case NodeType.Terminal:
                     if (node.Subtype == LogNode.TERM_TIMESTAMP)
                     {
                         yield return "[";
@@ -35,7 +32,7 @@ namespace Dispel
 
                     break;
 
-                case NodeType.Sequence:
+                case NodeType.Production:
                     if (node.Subtype == LogNode.SEQ_USER)
                     {
                         yield return " <";

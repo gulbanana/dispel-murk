@@ -17,10 +17,7 @@ namespace Dispel
         {
             switch (node.Type)
             {
-                case NodeType.Empty:
-                    break;
-
-                case NodeType.Term:
+                case NodeType.Terminal:
                     if (node.Subtype == LogNode.TERM_TIMESTAMP)
                     {
                         yield return $"<span style='font-family:monospace;'><span style='color:#a9a9a9;'>{node.Text}</span>";
@@ -32,7 +29,7 @@ namespace Dispel
 
                     break;
 
-                case NodeType.Sequence:
+                case NodeType.Production:
                     if (node.Subtype == LogNode.SEQ_USER)
                     {
                         yield return "&nbsp;<b>&lt;";

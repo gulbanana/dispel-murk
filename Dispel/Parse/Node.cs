@@ -8,14 +8,14 @@ namespace Dispel.Parse
         public readonly NodeType Type;
         public readonly int Subtype;
         public readonly string Text;
-        public readonly List<Node> Children;
+        public readonly IReadOnlyList<Node> Children;
 
         public Node(NodeType type, int subtype, string text = null, IEnumerable<Node> children = null)
         {
             Type = type;
             Subtype = subtype;
             Text = text;
-            Children = (children ?? Enumerable.Empty<Node>()).ToList();
+            Children = (children ?? Enumerable.Empty<Node>()).Where(c => c.Type != NodeType.Empty).ToList();
         }
 
         public override string ToString()
