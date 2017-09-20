@@ -20,7 +20,7 @@ namespace Dispel
 
         public static readonly Parser Timestamp = Sequence(Skip(@"\["), Term(@"\d\d:\d\d"), Skip(@"\]"));
         public static readonly Parser Username = Sequence(Skip(@"\s<"), Skip(SetColor), Optional(Skip(@"@")), Term(@"\w+"), Skip(FullReset), Skip(@">\s"));
-        public static readonly Parser Header = Sequence(Optional(SetColor), Timestamp, Username);
+        public static readonly Parser Header = Sequence(Skip(Optional(SetColor)), Timestamp, Username);
 
         public static readonly Parser Message = Sequence(Header, AttributedText);
         public static readonly Parser Newline = Term(@"\r?\n");

@@ -5,11 +5,13 @@ namespace Dispel.AST
 {
     public class MessageBody
     {
-        public readonly string Text;
+        public readonly Run[] Runs;
 
         public MessageBody(IEnumerable<Run> runs)
         {
-            Text = string.Join("", runs.Select(r => r.Text));
+            Runs = runs.ToArray();
         }
+
+        public string Flatten() => string.Join("", Runs.Select(r => r.Text));
     }
 }

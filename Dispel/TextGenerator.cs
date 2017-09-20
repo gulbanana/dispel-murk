@@ -14,7 +14,7 @@ namespace Dispel
 
         public static string Format(Message message)
         {
-            return $"{Format(message.Header)} {message.Body.Text}{Environment.NewLine}";
+            return $"{Format(message.Header)} {message.Body.Flatten()}{Environment.NewLine}";
         }
 
         public static string Format(MessageHeader header)

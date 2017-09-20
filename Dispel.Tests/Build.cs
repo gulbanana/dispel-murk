@@ -17,13 +17,24 @@ public class Build
     }
 
     [Fact]
+    public void MessageHeaderWithReset()
+    {
+        var input = "\x000301[00:01] <\x000303player1\x000f> ";
+        var r = LogParser.Header(input);
+        var ast = r.Tree.Build<MessageHeader>();
+
+        Assert.Equal("player1", ast.Username);
+        Assert.Equal("00:01", ast.Timestamp);
+    }
+
+    [Fact]
     public void SimpleMessageBody()
     {
         var input = "foo";
         var r = LogParser.AttributedText(input);
         var ast = r.Tree.Build<MessageBody>();
 
-        Assert.Equal("foo", ast.Text);
+        Assert.Equal("foo", ast.Flatten());
     }
 
     [Fact]
@@ -33,7 +44,7 @@ public class Build
         var r = LogParser.AttributedText(input);
         var ast = r.Tree.Build<MessageBody>();
 
-        Assert.Equal("foobar", ast.Text);
+        Assert.Equal("foobar", ast.Flatten());
     }
 
     [Fact]
@@ -45,7 +56,7 @@ public class Build
 
         Assert.Equal("player1", ast.Header.Username);
         Assert.Equal("00:01", ast.Header.Timestamp);
-        Assert.Equal("foo", ast.Body.Text);
+        Assert.Equal("foo", ast.Body.Flatten());
     }
 
     [Fact]

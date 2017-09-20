@@ -1,6 +1,7 @@
 ﻿using Dispel.AST;
 using System;
 using System.Linq;
+using System.Text;
 
 namespace Dispel
 {
@@ -36,12 +37,38 @@ span.timestamp {
 
         public static string Format(Message message)
         {
-            return $"<p class='line'>{Format(message.Header)} {message.Body.Text}</p>{Environment.NewLine}";
+            return $"<p class='line'>{Format(message.Header)} {Format(message.Body)}</p>{Environment.NewLine}";
         }
 
         public static string Format(MessageHeader header)
         {
             return $"<span class='timestamp'>{header.Timestamp}</span> <span class='user'>&lt;{header.Username}&gt;</span>";
+        }
+
+        public static string Format(MessageBody body)
+        {
+            var isBold = false;
+
+            var builder = new StringBuilder();
+            foreach (var run in body.Runs)
+            {
+                foreach (var attribute in run.Attributes)
+                {
+                    switch (attribute.Flag)
+                    {
+                        case AttributeType.Bold:
+                            isBold = !isBold;
+                            builder.Append(isBold ? "<b>" : "</b>");
+                            break;
+
+                        default:
+                            break;
+                    }
+
+                    builder.Append(run.Text);
+                }
+            }
+            return builder.ToString();
         }
     }
 }
