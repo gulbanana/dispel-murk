@@ -13,8 +13,20 @@
                     Flag = AttributeType.Bold;
                     break;
 
-                default:
-                    Flag = AttributeType.Unknown;
+                case "\x1D":
+                    Flag = AttributeType.Italic;
+                    break;
+
+                case "\x1F":
+                    Flag = AttributeType.Underline;
+                    break;
+
+                case "\x03":
+                    Flag = AttributeType.Color;
+                    break;
+
+                case "\x0F":
+                    Flag = AttributeType.Reset;
                     break;
             }
         }

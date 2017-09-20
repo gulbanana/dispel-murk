@@ -3,6 +3,9 @@
     public enum AttributeType
     {
         Bold,
-        Unknown
+        Italic,
+        Underline,
+        Color,
+        Reset,
     }
 }

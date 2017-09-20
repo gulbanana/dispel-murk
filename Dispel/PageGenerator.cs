@@ -26,6 +26,15 @@ span.user {
 span.timestamp {
     color: rgb(128, 128, 128);
 }
+span.b {
+    font-weight: bold;
+}
+span.u {
+    text-decoration: underline;
+}
+span.i {
+    font-style: italic;
+}
 </style>
 ";
 
@@ -48,6 +57,8 @@ span.timestamp {
         public static string Format(MessageBody body)
         {
             var isBold = false;
+            var isItalic = false;
+            var isUnderlined = false;
 
             var builder = new StringBuilder();
             foreach (var run in body.Runs)
@@ -58,15 +69,36 @@ span.timestamp {
                     {
                         case AttributeType.Bold:
                             isBold = !isBold;
-                            builder.Append(isBold ? "<b>" : "</b>");
+                            break;
+
+                        case AttributeType.Italic:
+                            isItalic = !isItalic;
+                            break;
+
+                        case AttributeType.Underline:
+                            isUnderlined = !isUnderlined;
+                            break;
+
+                        case AttributeType.Reset:
+                            isBold = false;
+                            isItalic = false;
+                            isUnderlined = false;
                             break;
 
                         default:
                             break;
                     }
-
-                    builder.Append(run.Text);
                 }
+
+                var textClass = "";
+
+                if (isBold) textClass += "b ";
+                if (isItalic) textClass += "i ";
+                if (isUnderlined) textClass += "u ";
+
+                if (textClass != "") builder.Append($"<span class='{textClass}'>");
+                builder.Append(run.Text);
+                if (textClass != "") builder.Append("</span>");
             }
             return builder.ToString();
         }
