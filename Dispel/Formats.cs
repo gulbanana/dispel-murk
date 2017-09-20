@@ -1,4 +1,5 @@
-﻿using Dispel.Parse;
+﻿using Dispel.AST;
+using Dispel.Parse;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -25,7 +26,7 @@ namespace Dispel
             }
         }
 
-        public static Func<Node, string> GetGenerator(OutputFormat format)
+        public static Func<Log, string> GetGenerator(OutputFormat format)
         {
             switch (format)
             {

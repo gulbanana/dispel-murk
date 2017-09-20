@@ -1,6 +1,5 @@
-﻿using Dispel.Parse;
+﻿using Dispel.AST;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace Dispel
@@ -8,52 +7,20 @@ namespace Dispel
     /// <summary>output special HTML for the Obsidian Portal wiki</summary>
     static class WikiGenerator
     {
-        public static string Format(Node tree)
+        public static string Format(Log log)
         {
-            return string.Join("", Flatten(tree));
+            return string.Join("", log.Messages.Select(Format));
         }
 
-        private static IEnumerable<string> Flatten(Node node)
+        public static string Format(Message message)
         {
-            switch (node.Type)
-            {
-                case NodeType.Terminal:
-                    if (node.Subtype == LogNode.TERM_TIMESTAMP)
-                    {
-                        yield return $"<span style='font-family:monospace;'><span style='color:#a9a9a9;'>{node.Text}</span>";
-                    }
-                    else
-                    {
-                        yield return node.Text;
-                    }
+            return $"{Format(message.Header)} {message.Body.Text}<br>{Environment.NewLine}";
+        }
 
-                    break;
-
-                case NodeType.Production:
-                case NodeType.Repetition:
-                    if (node.Subtype == LogNode.SEQ_USER)
-                    {
-                        yield return "&nbsp;<b>&lt;";
-                    }
-
-                    foreach (var child in node.Children.SelectMany(Flatten))
-                    {
-                        yield return child;
-                    }
-
-                    if (node.Subtype == LogNode.SEQ_USER)
-                    {
-                        yield return "&gt;</b>";
-                        yield return "".PadRight(9 - node.Children.Single(n => n.Type != NodeType.Empty).Text.Length).Replace(" ", "&nbsp;");
-                        yield return "</span>";
-                    }
-                    else if (node.Subtype == LogNode.SEQ_LINE)
-                    {
-                        yield return "<br>" + Environment.NewLine;
-                    }
-
-                    break;
-            }
+        public static string Format(MessageHeader header)
+        {
+            var padding = "".PadRight(9 - header.Username.Length).Replace(" ", "&nbsp;");
+            return $"<span style='font-family:monospace;'><span style='color:#a9a9a9;'>{header.Timestamp}</span>&nbsp;<b>&lt;{header.Username}&gt;</b>{padding}</span>";
         }
     }
 }

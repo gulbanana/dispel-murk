@@ -26,7 +26,8 @@ namespace Dispel
                 }
                 else
                 {
-                    var outputText = generator(result.Tree);
+                    var ast = result.Tree.Build<AST.Log>();
+                    var outputText = generator(ast);
                     await writer.WriteLineAsync(outputText);
                 }
 

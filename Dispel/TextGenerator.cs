@@ -1,6 +1,5 @@
-﻿using Dispel.Parse;
+﻿using Dispel.AST;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace Dispel
@@ -8,56 +7,19 @@ namespace Dispel
     /// <summary>output a plaintext log file</summary>
     static class TextGenerator
     {
-        public static string Format(Node tree)
+        public static string Format(Log log)
         {
-            return string.Join("", Flatten(tree));
+            return string.Join("", log.Messages.Select(Format));
         }
 
-        private static IEnumerable<string> Flatten(Node node)
+        public static string Format(Message message)
         {
-            switch (node.Type)
-            {
-                case NodeType.Terminal:
-                    if (node.Subtype == LogNode.TERM_TIMESTAMP)
-                    {
-                        yield return "[";
-                    }
+            return $"{Format(message.Header)} {message.Body.Text}{Environment.NewLine}";
+        }
 
-                    yield return node.Text;
-
-                    if (node.Subtype == LogNode.TERM_TIMESTAMP)
-                    {
-                        yield return "]";
-                    }
-
-                    break;
-
-                case NodeType.Production:
-                case NodeType.Repetition:
-                    if (node.Subtype == LogNode.SEQ_USER)
-                    {
-                        yield return " <";
-                    }
-
-                    foreach (var child in node.Children.SelectMany(Flatten))
-                    {
-                        yield return child;
-                    }
-
-                    if (node.Subtype == LogNode.SEQ_USER)
-                    {
-                        yield return "> ";
-                    }
-                    else if (node.Subtype == LogNode.SEQ_LINE)
-                    {
-                        yield return Environment.NewLine;
-                    }
-
-                    break;
-
-                default:
-                    throw new Exception($"Unknown node type {node.Type}");
-            }
+        public static string Format(MessageHeader header)
+        {
+            return $"[{header.Timestamp}] <{header.Username}>";
         }
     }
 }

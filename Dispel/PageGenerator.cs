@@ -1,6 +1,5 @@
-﻿using Dispel.Parse;
+﻿using Dispel.AST;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace Dispel
@@ -29,55 +28,20 @@ span.timestamp {
 </style>
 ";
 
-        public static string Format(Node tree)
+        public static string Format(Log log)
         {
-            var content = string.Join("", Flatten(tree));
+            var content = string.Join("", log.Messages.Select(Format));
             return template + content;
         }
 
-        private static IEnumerable<string> Flatten(Node node)
+        public static string Format(Message message)
         {
-            switch (node.Type)
-            {
-                case NodeType.Terminal:
-                    if (node.Subtype == LogNode.TERM_TIMESTAMP)
-                    {
-                        yield return $"<span class='timestamp'>{node.Text}</span>";
-                    }
-                    else
-                    {
-                        yield return node.Text;
-                    }
+            return $"<p class='line'>{Format(message.Header)} {message.Body.Text}</p>{Environment.NewLine}";
+        }
 
-                    break;
-
-                case NodeType.Production:
-                case NodeType.Repetition:
-                    if (node.Subtype == LogNode.SEQ_USER)
-                    {
-                        yield return " <span class='user'>&lt;";
-                    }
-                    else if (node.Subtype == LogNode.SEQ_LINE)
-                    {
-                        yield return "<p class='line'>";
-                    }
-
-                    foreach (var child in node.Children.SelectMany(Flatten))
-                    {
-                        yield return child;
-                    }
-
-                    if (node.Subtype == LogNode.SEQ_USER)
-                    {
-                        yield return "&gt;</span> ";
-                    }
-                    else if (node.Subtype == LogNode.SEQ_LINE)
-                    {
-                        yield return "</p>" + Environment.NewLine;
-                    }
-
-                    break;
-            }
+        public static string Format(MessageHeader header)
+        {
+            return $"<span class='timestamp'>{header.Timestamp}</span> <span class='user'>&lt;{header.Username}&gt;</span>";
         }
     }
 }
