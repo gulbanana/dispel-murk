@@ -63,7 +63,7 @@ namespace Parse
         public void Reset()
         {
             var text = "\x0003";
-            var r = LogParser.SetColor(text);
+            var r = LogParser.ResetColor(text);
             Assert.True(r.IsSuccess);
         }
 

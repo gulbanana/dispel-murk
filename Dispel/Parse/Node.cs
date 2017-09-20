@@ -81,10 +81,22 @@ namespace Dispel.Parse
                             var pinfo = rConstructor.GetParameters().Single();
                             var pt = pinfo.ParameterType.GetGenericArguments().Single();
                             var rps = Array.CreateInstance(pt, Children.Count);
-                            for (var i = 0; i < Children.Count; i++)
+
+                            if (pt == typeof(Node))
                             {
-                                rps.SetValue(Children[i].Build(pt), i);
+                                for (var i = 0; i < Children.Count; i++)
+                                {
+                                    rps.SetValue(Children[i], i);
+                                }
                             }
+                            else
+                            {
+                                for (var i = 0; i < Children.Count; i++)
+                                {
+                                    rps.SetValue(Children[i].Build(pt), i);
+                                }
+                            }
+
                             return rConstructor.Invoke(new[] { rps });
                         }
 

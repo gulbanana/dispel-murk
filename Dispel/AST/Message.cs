@@ -2,8 +2,8 @@
 {
     public class Message
     {
-        public MessageHeader Header;
-        public MessageBody Body;
+        public readonly MessageHeader Header;
+        public readonly MessageBody Body;
 
         public Message(MessageHeader header, MessageBody body)
         {

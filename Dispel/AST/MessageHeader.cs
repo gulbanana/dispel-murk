@@ -2,8 +2,8 @@
 {
     public class MessageHeader
     {
-        public string Timestamp;
-        public string Username;
+        public readonly string Timestamp;
+        public readonly string Username;
 
         public MessageHeader(string timestamp, string username)
         {
