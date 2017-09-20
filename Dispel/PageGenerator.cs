@@ -26,15 +26,25 @@ span.user {
 span.timestamp {
     color: rgb(128, 128, 128);
 }
-span.b {
-    font-weight: bold;
-}
-span.u {
-    text-decoration: underline;
-}
-span.i {
-    font-style: italic;
-}
+span.b { font-weight: bold; }
+span.u { text-decoration: underline; }
+span.i { font-style: italic; }
+span.c0 { color: rgb(255,255,255); }
+span.c1 { color: rgb(0,0,0); }
+span.c2 { color: rgb(0,0,127); }
+span.c3 { color: rgb(0,147,0); }
+span.c4 { color: rgb(255,0,0); }
+span.c5 { color: rgb(127,255,255); }
+span.c6 { color: rgb(156,0,156); }
+span.c7 { color: rgb(252,127,0); }
+span.c8 { color: rgb(255,255,0); }
+span.c9 { color: rgb(0,252,0); }
+span.c10 { color: rgb(0,147,147); }
+span.c11 { color: rgb(0,255,255); }
+span.c12 { color: rgb(0,0,252); }
+span.c13 { color: rgb(255,0,255); }
+span.c14 { color: rgb(127,127,127); }
+span.c15 { color: rgb(210,210,210); }
 </style>
 ";
 
@@ -59,6 +69,7 @@ span.i {
             var isBold = false;
             var isItalic = false;
             var isUnderlined = false;
+            var color = default(string);
 
             var builder = new StringBuilder();
             foreach (var run in body.Runs)
@@ -79,10 +90,22 @@ span.i {
                             isUnderlined = !isUnderlined;
                             break;
 
+                        case AttributeType.Color:
+                            if (attribute.Options == null)
+                            {
+                                color = null;
+                            }
+                            else
+                            {
+                                color = int.Parse(attribute.Options.Split(",").First()).ToString();
+                            }
+                            break;
+
                         case AttributeType.Reset:
                             isBold = false;
                             isItalic = false;
                             isUnderlined = false;
+                            color = null;
                             break;
 
                         default:
@@ -95,6 +118,7 @@ span.i {
                 if (isBold) textClass += "b ";
                 if (isItalic) textClass += "i ";
                 if (isUnderlined) textClass += "u ";
+                if (color != null) textClass += "c" + color;
 
                 if (textClass != "") builder.Append($"<span class='{textClass}'>");
                 builder.Append(run.Text);

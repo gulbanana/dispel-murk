@@ -1,6 +1,7 @@
 ﻿using Dispel;
 using Dispel.AST;
 using System;
+using System.Linq;
 using Xunit;
 
 public class Build
@@ -28,7 +29,7 @@ public class Build
     }
 
     [Fact]
-    public void SimpleMessageBody()
+    public void SimpleBody()
     {
         var input = "foo";
         var r = LogParser.AttributedText(input);
@@ -38,7 +39,7 @@ public class Build
     }
 
     [Fact]
-    public void ComplexMessageBody()
+    public void ComplexBody()
     {
         var input = "foo\x0002bar";
         var r = LogParser.AttributedText(input);
@@ -48,7 +49,7 @@ public class Build
     }
 
     [Fact]
-    public void SingleMessage()
+    public void SimpleMessage()
     {
         var input = "[00:01] <\x000303player1\x000f> foo";
         var r = LogParser.Message(input);
@@ -57,6 +58,26 @@ public class Build
         Assert.Equal("player1", ast.Header.Username);
         Assert.Equal("00:01", ast.Header.Timestamp);
         Assert.Equal("foo", ast.Body.Flatten());
+    }
+
+    [Fact]
+    public void ComplexMessage()
+    {
+        var input = @"[10:15] <03Quaker> 13Claudio doesn’t move. Both he and Bianca are too polite to do anything except smile pleasantly. “Good evening.” 13The man spoke in English, and Claudio does as well: crisp, only very slightly accented. ";
+        var r = LogParser.Message(input);
+
+        var ast = r.Tree.Build<Message>();
+        Assert.Equal(3, ast.Body.Runs.Length);
+
+        var r0 = ast.Body.Runs[0];
+        Assert.Single(r0.Attributes);
+        Assert.Equal(AttributeType.Color, r0.Attributes.Single().Flag);
+        Assert.Equal("13", r0.Attributes.Single().Options);
+
+        var r1 = ast.Body.Runs[1];
+        Assert.Single(r1.Attributes);
+        Assert.Equal(AttributeType.Color, r0.Attributes.Single().Flag);
+        Assert.Null(r1.Attributes.Single().Options);
     }
 
     [Fact]
