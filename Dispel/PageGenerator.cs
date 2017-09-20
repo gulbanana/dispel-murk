@@ -52,6 +52,7 @@ span.timestamp {
                     break;
 
                 case NodeType.Production:
+                case NodeType.Repetition:
                     if (node.Subtype == LogNode.SEQ_USER)
                     {
                         yield return " <span class='user'>&lt;";

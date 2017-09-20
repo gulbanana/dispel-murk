@@ -57,7 +57,7 @@ namespace Dispel.Parse
             };
         }
 
-        public static Parser Sequence(Func<IEnumerable<Node>, Node> reduce, params Parser[] parsers)
+        public static Parser Sequence(int subtype, params Parser[] parsers)
         {
             return text =>
             {
@@ -67,17 +67,23 @@ namespace Dispel.Parse
                 {
                     var r = p(text);
                     if (!r.IsSuccess) return r;
-                    nodes.Add(r.Tree);
+                    if (r.Tree.Type != NodeType.Empty) nodes.Add(r.Tree);
                     text = r.Remainder;
                 }
 
-                return ParseResult.Success(reduce(nodes), text);
+                if (!nodes.Any())
+                {
+                    return ParseResult.None(text);
+                }
+                else if (nodes.Count() > 1 || subtype != 0)
+                {
+                    return ParseResult.Success(new Node(NodeType.Production, subtype, null, nodes), text);
+                }
+                else
+                {
+                    return ParseResult.Success(nodes.Single(), text);
+                }
             };
-        }
-
-        public static Parser Sequence(int subtype, params Parser[] parsers)
-        {
-            return Sequence(nodes => new Node(NodeType.Production, subtype, null, nodes), parsers);
         }
 
         public static Parser Sequence(params Parser[] parsers)
@@ -108,7 +114,7 @@ namespace Dispel.Parse
                 else if (nodes.Count == 1)
                     return ParseResult.Success(nodes.Single(), text);
                 else
-                    return ParseResult.Success(new Node(NodeType.Production, 0, null, nodes), text);
+                    return ParseResult.Success(new Node(NodeType.Repetition, 0, null, nodes), text);
             };
         }
 
@@ -135,7 +141,7 @@ namespace Dispel.Parse
                 else if (nodes.Count == 1)
                     return ParseResult.Success(nodes.Single(), text);
                 else
-                    return ParseResult.Success(new Node(NodeType.Production, 0, null, nodes), text);
+                    return ParseResult.Success(new Node(NodeType.Repetition, 0, null, nodes), text);
             };
         }
 
@@ -168,6 +174,11 @@ namespace Dispel.Parse
                 else
                     return ParseResult.None(r.Remainder);
             };
+        }
+
+        public static Parser Skip(string pattern)
+        {
+            return Skip(Term(pattern));
         }
     }
 }

@@ -5,5 +5,6 @@
         Empty,
         Terminal,
         Production,
+        Repetition,
     }
 }

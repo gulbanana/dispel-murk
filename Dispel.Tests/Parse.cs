@@ -126,7 +126,7 @@ namespace Parse
         public void NarrativeAfterDialogue()
         {
             var input = @"[13:02] <03Quaker> 1“Please, lead the way.” 13Claudio will follow the sailor.";
-            var r = LogParser.MessageLine(input);
+            var r = LogParser.Message(input);
             Assert.True(r.IsSuccess);
         }
     }
