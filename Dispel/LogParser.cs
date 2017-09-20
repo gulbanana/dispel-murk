@@ -1,5 +1,4 @@
 ﻿using static Dispel.Parse.Combinators;
-using static Dispel.LogNode;
 using Dispel.Parse;
 
 namespace Dispel
@@ -18,11 +17,11 @@ namespace Dispel
         public static readonly Parser Run = Sequence(Attributes, Text);
         public static readonly Parser AttributedText = Sequence(Set(Run), Attributes);
 
-        public static readonly Parser Timestamp = Sequence(Skip(@"\["), Term(TERM_TIMESTAMP, @"\d\d:\d\d"), Skip(@"\]"));
+        public static readonly Parser Timestamp = Sequence(Skip(@"\["), Term(@"\d\d:\d\d"), Skip(@"\]"));
         public static readonly Parser Username = Sequence(Skip(@"\s<"), SetColor, Optional(Skip(@"@")), Term(@"\w+"), FullReset, Skip(@">\s"));
         public static readonly Parser Header = Sequence(Optional(SetColor), Timestamp, Username);
 
-        public static readonly Parser Message = Sequence(SEQ_LINE, Header, AttributedText);
+        public static readonly Parser Message = Sequence(Header, AttributedText);
         public static readonly Parser Newline = Term(@"\r?\n");
         public static readonly Parser Log = RequiredSet(Sequence(Message, Skip(Newline)));
     }

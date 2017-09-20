@@ -6,7 +6,7 @@
 
         public static ParseResult Failure(string remainder, string expected) => new ParseResult(false, null, remainder, expected);
 
-        public static ParseResult None(string t) => new ParseResult(true, new Node(NodeType.Empty, 0, ""), t, null);
+        public static ParseResult None(string t) => new ParseResult(true, new Node(NodeType.Empty, ""), t, null);
 
         public readonly Node Tree;
         public readonly string Remainder;

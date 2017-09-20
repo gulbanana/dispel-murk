@@ -24,7 +24,7 @@ namespace Dispel.Parse
             }
         }
 
-        public static Parser Term(int subtype, string pattern, Func<Match, string> extract)
+        public static Parser Term(string pattern, Func<Match, string> extract)
         {
             if (pattern == null) throw new ArgumentNullException("pattern");
 
@@ -35,15 +35,11 @@ namespace Dispel.Parse
                 var m = Consume(ref text, regex);
                 if (m == null) return ParseResult.Failure(text, pattern);
 
-                return ParseResult.Success(new Node(NodeType.Terminal, subtype, extract(m)), text);
+                return ParseResult.Success(new Node(NodeType.Terminal, extract(m)), text);
             };
         }
 
-        public static Parser Term(string pattern, Func<Match, string> extract) => Term(0, pattern, extract);
-
-        public static Parser Term(int subtype, string pattern) => Term(subtype, pattern, m => m.Value);
-
-        public static Parser Term(string pattern) => Term(0, pattern, m => m.Value);
+        public static Parser Term(string pattern) => Term(pattern, m => m.Value);
 
         public static Parser Optional(Parser p)
         {
@@ -57,7 +53,7 @@ namespace Dispel.Parse
             };
         }
 
-        public static Parser Sequence(int subtype, params Parser[] parsers)
+        public static Parser Sequence(params Parser[] parsers)
         {
             return text =>
             {
@@ -75,20 +71,15 @@ namespace Dispel.Parse
                 {
                     return ParseResult.None(text);
                 }
-                else if (nodes.Count() > 1 || subtype != 0)
+                else if (nodes.Count() > 1)
                 {
-                    return ParseResult.Success(new Node(NodeType.Production, subtype, null, nodes), text);
+                    return ParseResult.Success(new Node(NodeType.Production, null, nodes), text);
                 }
                 else
                 {
                     return ParseResult.Success(nodes.Single(), text);
                 }
             };
-        }
-
-        public static Parser Sequence(params Parser[] parsers)
-        {
-            return Sequence(0, parsers);
         }
 
         /// <summary>0 or more</summary>
@@ -109,7 +100,7 @@ namespace Dispel.Parse
                     }
                 } while (r.IsSuccess);
 
-                return ParseResult.Success(new Node(NodeType.Repetition, 0, null, nodes), text);
+                return ParseResult.Success(new Node(NodeType.Repetition, null, nodes), text);
             };
         }
 
@@ -137,7 +128,7 @@ namespace Dispel.Parse
                 }
                 else
                 {
-                    return ParseResult.Success(new Node(NodeType.Repetition, 0, null, nodes), text);
+                    return ParseResult.Success(new Node(NodeType.Repetition, null, nodes), text);
                 }
             };
         }
