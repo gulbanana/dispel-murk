@@ -15,7 +15,7 @@ namespace Dispel
         public static readonly Parser Text = Term(@"[^\x02\x03\x0F\x1D\x1F\r\n]+");
         public static readonly Parser Attributes = Set(Attribute);
         public static readonly Parser Run = Sequence(Attributes, Text);
-        public static readonly Parser AttributedText = Sequence(Set(Run), Attributes);
+        public static readonly Parser AttributedText = Sequence(Set(Run), Skip(Optional(Attributes)));
 
         public static readonly Parser Timestamp = Sequence(Skip(@"\["), Term(@"\d\d:\d\d"), Skip(@"\]"));
         public static readonly Parser Username = Sequence(Skip(@"\s<"), SetColor, Optional(Skip(@"@")), Term(@"\w+"), FullReset, Skip(@">\s"));

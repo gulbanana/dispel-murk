@@ -7,7 +7,7 @@ namespace Dispel.AST
     {
         public string Text;
 
-        public MessageBody(IEnumerable<Run> runs, Attributes _)
+        public MessageBody(IEnumerable<Run> runs)
         {
             Text = string.Join("", runs.Select(r => r.Text));
         }
