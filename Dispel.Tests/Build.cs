@@ -21,9 +21,19 @@ public class Build
     {
         var input = "foo";
         var r = LogParser.AttributedText(input);
-        var ast = r.Tree.Build<string>();
+        var ast = r.Tree.Build<MessageBody>();
 
-        Assert.Equal("foo", ast);
+        Assert.Equal("foo", ast.Text);
+    }
+
+    [Fact]
+    public void ComplexMessageBody()
+    {
+        var input = "foo\x0002bar";
+        var r = LogParser.AttributedText(input);
+        var ast = r.Tree.Build<MessageBody>();
+
+        Assert.Equal("foobar", ast.Text);
     }
 
     [Fact]
@@ -35,7 +45,7 @@ public class Build
 
         Assert.Equal("player1", ast.Header.Username);
         Assert.Equal("00:01", ast.Header.Timestamp);
-        Assert.Equal("foo", ast.Body);
+        Assert.Equal("foo", ast.Body.Text);
     }
 
     [Fact]

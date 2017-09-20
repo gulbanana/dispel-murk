@@ -67,21 +67,34 @@ namespace Dispel.Parse
 
                 // try [T], [_]
                 case NodeType.Repetition:
-                    var rConstructor = t.GetConstructors().SingleOrDefault(c => c.GetParameters().Count() == 1 && typeof(IEnumerable).IsAssignableFrom(c.GetParameters().Single().ParameterType));
-                    if (rConstructor != null)
+                    if (t.IsGenericType && t.GetGenericTypeDefinition() == typeof(IEnumerable<>))
                     {
-                        var pinfo = rConstructor.GetParameters().Single();
-                        var pt = pinfo.ParameterType.GetGenericArguments().Single();
-                        var rps = Array.CreateInstance(pt, Children.Count); 
+                        var pt = t.GetGenericArguments().Single();
+                        var rps = Array.CreateInstance(pt, Children.Count);
                         for (var i = 0; i < Children.Count; i++)
                         {
                             rps.SetValue(Children[i].Build(pt), i);
                         }
-                        return rConstructor.Invoke(new[] { rps });
+                        return rps;
                     }
+                    else
+                    {
+                        var rConstructor = t.GetConstructors().SingleOrDefault(c => c.GetParameters().Count() == 1 && typeof(IEnumerable).IsAssignableFrom(c.GetParameters().Single().ParameterType));
+                        if (rConstructor != null)
+                        {
+                            var pinfo = rConstructor.GetParameters().Single();
+                            var pt = pinfo.ParameterType.GetGenericArguments().Single();
+                            var rps = Array.CreateInstance(pt, Children.Count);
+                            for (var i = 0; i < Children.Count; i++)
+                            {
+                                rps.SetValue(Children[i].Build(pt), i);
+                            }
+                            return rConstructor.Invoke(new[] { rps });
+                        }
 
-                    rConstructor = t.GetConstructor(new[] { typeof(IEnumerable<Node>) });
-                    return rConstructor.Invoke(new[] { Children });
+                        rConstructor = t.GetConstructor(new[] { typeof(IEnumerable<Node>) });
+                        return rConstructor.Invoke(new[] { Children });
+                    }
 
                 case NodeType.Empty: 
                     throw new NotSupportedException("cannot build AST from empty node");

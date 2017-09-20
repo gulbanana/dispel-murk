@@ -109,12 +109,7 @@ namespace Dispel.Parse
                     }
                 } while (r.IsSuccess);
 
-                if (nodes.Count == 0)
-                    return ParseResult.None(text);
-                else if (nodes.Count == 1)
-                    return ParseResult.Success(nodes.Single(), text);
-                else
-                    return ParseResult.Success(new Node(NodeType.Repetition, 0, null, nodes), text);
+                return ParseResult.Success(new Node(NodeType.Repetition, 0, null, nodes), text);
             };
         }
 
@@ -137,11 +132,13 @@ namespace Dispel.Parse
                 } while (r.IsSuccess);
 
                 if (nodes.Count == 0)
+                {
                     return ParseResult.Failure(text, $"SET OF ({parser("").Expected})");
-                else if (nodes.Count == 1)
-                    return ParseResult.Success(nodes.Single(), text);
+                }
                 else
+                {
                     return ParseResult.Success(new Node(NodeType.Repetition, 0, null, nodes), text);
+                }
             };
         }
 

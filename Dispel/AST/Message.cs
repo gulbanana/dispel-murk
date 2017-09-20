@@ -3,9 +3,9 @@
     public class Message
     {
         public MessageHeader Header;
-        public string Body;
+        public MessageBody Body;
 
-        public Message(MessageHeader header, string body)
+        public Message(MessageHeader header, MessageBody body)
         {
             Header = header;
             Body = body;
