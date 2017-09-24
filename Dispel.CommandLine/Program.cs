@@ -16,17 +16,9 @@ namespace Dispel.CommandLine
 
             ArgumentSyntax.Parse(args, syntax =>
             {
-                syntax.DefineOption("f|format", ref formatName, "output format - html/text/wiki");
+                syntax.DefineOption("o|outputFormat", ref formatName, "output format - (html|text|wiki|all)");
                 syntax.DefineParameterList("logs", ref logPaths, "log files to convert");
             });
-
-            if (formatName != "html" && formatName != "text" && formatName != "wiki")
-            {
-                Console.WriteLine($"Unrecognised format {formatName}!");
-                return;
-            }
-
-            var format = Formats.Parse(formatName);
 
             if (!logPaths.Any())
             {
@@ -39,6 +31,29 @@ namespace Dispel.CommandLine
                 return;
             }
 
+            if (formatName != "all" && !Formats.Names.Contains(formatName))
+            {
+                Console.WriteLine($"Unrecognised format {formatName}!");
+                return;
+            }
+
+            if (formatName == "all")
+            {
+                foreach (var format in new[] { OutputFormat.HTML, OutputFormat.Text, OutputFormat.Wiki })
+                {
+                    await ConvertAsync(format, logPaths);
+                }
+            }
+            else
+            {
+                var format = Formats.Parse(formatName);
+                await ConvertAsync(format, logPaths);
+            }
+
+        }
+
+        private static async Task ConvertAsync(OutputFormat format, IReadOnlyList<string> logPaths)
+        {
             foreach (var logPath in logPaths)
             {
                 if (!File.Exists(logPath))

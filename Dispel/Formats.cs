@@ -60,7 +60,8 @@ namespace Dispel
                 default:
                     throw new NotSupportedException();
             }
-
         }
+
+        public static readonly string[] Names = new[] { "text", "html", "wiki" };
     }
 }
