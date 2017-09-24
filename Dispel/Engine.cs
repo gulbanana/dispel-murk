@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace Dispel
@@ -18,7 +19,7 @@ namespace Dispel
                 var result = parser(inputText);
                 if (!result.IsSuccess)
                 {
-                    writer.WriteLine($"parse error! expected: {result.Expected}; found: '{result.Remainder}'");
+                    writer.WriteLine($"parse error! expected: {result.Expected}; found: '{result.Remainder.Split(Environment.NewLine)[0]}'");
                 }
                 else if (result.Tree.Type == Parse.NodeType.Empty)
                 {
