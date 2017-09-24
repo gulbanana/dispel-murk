@@ -13,10 +13,12 @@ namespace Dispel.CommandLine
         {
             IReadOnlyList<string> logPaths = Array.Empty<string>();
             var formatName = "html";
+            var quiet = false;
 
             ArgumentSyntax.Parse(args, syntax =>
             {
                 syntax.DefineOption("o|outputFormat", ref formatName, "output format - (html|text|wiki|all)");
+                syntax.DefineOption("q|quiet", ref quiet, "suppress output");
                 syntax.DefineParameterList("logs", ref logPaths, "log files to convert");
             });
 
@@ -27,13 +29,13 @@ namespace Dispel.CommandLine
 
             if (!logPaths.Any())
             {
-                Console.WriteLine("No logs to process!");
+                if (!quiet) Console.WriteLine("No logs to process!");
                 return;
             }
 
             if (formatName != "all" && !Formats.Names.Contains(formatName))
             {
-                Console.WriteLine($"Unrecognised format {formatName}!");
+                if (!quiet) Console.WriteLine($"Unrecognised format {formatName}!");
                 return;
             }
 
@@ -41,29 +43,29 @@ namespace Dispel.CommandLine
             {
                 foreach (var format in new[] { OutputFormat.HTML, OutputFormat.Text, OutputFormat.Wiki })
                 {
-                    await ConvertAsync(format, logPaths);
+                    await ConvertAsync(format, logPaths, quiet);
                 }
             }
             else
             {
                 var format = Formats.Parse(formatName);
-                await ConvertAsync(format, logPaths);
+                await ConvertAsync(format, logPaths, quiet);
             }
 
         }
 
-        private static async Task ConvertAsync(OutputFormat format, IReadOnlyList<string> logPaths)
+        private static async Task ConvertAsync(OutputFormat format, IReadOnlyList<string> logPaths, bool quiet)
         {
             foreach (var logPath in logPaths)
             {
                 if (!File.Exists(logPath))
                 {
-                    Console.WriteLine($"File not found: {logPath}!");
+                    if (!quiet) Console.WriteLine($"File not found: {logPath}!");
                     continue;
                 }
 
                 var inputFile = Path.GetFullPath(logPath);
-                Console.WriteLine($"Processing {inputFile}...");
+                if (!quiet) Console.WriteLine($"Processing {inputFile}...");
 
                 var outputFile = Path.ChangeExtension(inputFile, Formats.GetFileExtension(format));
                 using (var inputStream = File.OpenRead(inputFile))
@@ -74,7 +76,7 @@ namespace Dispel.CommandLine
                     }
                 }
 
-                Console.WriteLine($"Created {outputFile}.");
+                if (!quiet) Console.WriteLine($"Created {outputFile}.");
             }
         }
     }

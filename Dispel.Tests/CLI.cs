@@ -35,7 +35,7 @@ Session Close: Tue Jan 03 18:33:05 2017
             writer.Write(singleSession);
         }
 
-        await Program.Main(new[] { "cliTests/foo.log" });
+        await Program.Main(new[] { "-q", "cliTests/foo.log" });
 
         Assert.True(File.Exists("cliTests/foo.html"));
     }
@@ -46,7 +46,7 @@ Session Close: Tue Jan 03 18:33:05 2017
         using (var writer = File.CreateText("cliTests/1.log")) writer.Write(singleSession);
         using (var writer = File.CreateText("cliTests/2.log")) writer.Write(singleSession);
 
-        await Program.Main(new[] { "cliTests/1.log", "cliTests/2.log" });
+        await Program.Main(new[] { "-q", "cliTests/1.log", "cliTests/2.log" });
 
         Assert.True(File.Exists("cliTests/1.html"));
         Assert.True(File.Exists("cliTests/2.html"));
@@ -58,7 +58,7 @@ Session Close: Tue Jan 03 18:33:05 2017
         using (var writer = File.CreateText("cliTests/1.log")) writer.Write(singleSession);
         using (var writer = File.CreateText("cliTests/2.log")) writer.Write(singleSession);
 
-        await Program.Main(new[] { "cliTests/1.log" });
+        await Program.Main(new[] { "-q", "cliTests/1.log" });
 
         Assert.True(File.Exists("cliTests/1.html"));
         Assert.False(File.Exists("cliTests/2.html"));
@@ -69,7 +69,7 @@ Session Close: Tue Jan 03 18:33:05 2017
     {
         using (var writer = File.CreateText("cliTests/1.log")) writer.Write(singleSession);
 
-        await Program.Main(new[] { "cliTests/1.log", "cliTests/2.log" });
+        await Program.Main(new[] { "-q", "cliTests/1.log", "cliTests/2.log" });
 
         Assert.True(File.Exists("cliTests/1.html"));
     }
@@ -83,7 +83,7 @@ Session Close: Tue Jan 03 18:33:05 2017
 
         Environment.CurrentDirectory = Path.Combine(Path.GetTempPath(), "cliTests");
 
-        await Program.Main(Array.Empty<string>());
+        await Program.Main(new[] { "-q" });
 
         Environment.CurrentDirectory = Path.Combine(Path.GetTempPath());
 
@@ -97,7 +97,7 @@ Session Close: Tue Jan 03 18:33:05 2017
     {
         Environment.CurrentDirectory = Path.Combine(Path.GetTempPath(), "cliTests");
 
-        await Program.Main(Array.Empty<string>());
+        await Program.Main(new[] { "-q" });
 
         Environment.CurrentDirectory = Path.Combine(Path.GetTempPath());
 
@@ -112,7 +112,7 @@ Session Close: Tue Jan 03 18:33:05 2017
             writer.Write(singleSession);
         }
 
-        await Program.Main(new[] { "-o", "html", "cliTests/foo.log" });
+        await Program.Main(new[] { "-q", "-o", "html", "cliTests/foo.log" });
 
         Assert.True(File.Exists("cliTests/foo.html"));
     }
@@ -125,7 +125,7 @@ Session Close: Tue Jan 03 18:33:05 2017
             writer.Write(singleSession);
         }
 
-        await Program.Main(new[] { "-o", "text", "cliTests/foo.log" });
+        await Program.Main(new[] { "-q", "-o", "text", "cliTests/foo.log" });
 
         Assert.True(File.Exists("cliTests/foo.txt"));
     }
@@ -138,7 +138,7 @@ Session Close: Tue Jan 03 18:33:05 2017
             writer.Write(singleSession);
         }
 
-        await Program.Main(new[] { "-o", "what", "cliTests/foo.log" });
+        await Program.Main(new[] { "-q", "-o", "what", "cliTests/foo.log" });
 
         Assert.Single(Directory.EnumerateFiles("cliTests/"));
     }
