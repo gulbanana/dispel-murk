@@ -1,13 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.12
+VisualStudioVersion = 15.0.26730.16
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dispel.CommandLine", "Dispel.CommandLine\Dispel.CommandLine.csproj", "{A6FE9B2A-DF66-4149-9947-C5B034891792}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dispel.Tests", "Dispel.Tests\Dispel.Tests.csproj", "{931A265B-F007-4C59-9278-D9ACCBD14807}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dispel.Tests", "Dispel.Tests\Dispel.Tests.csproj", "{931A265B-F007-4C59-9278-D9ACCBD14807}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dispel", "Dispel\Dispel.csproj", "{D5740021-32E8-45B3-A0F1-B3A253F62F9F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dispel.Web", "Dispel.Web\Dispel.Web.csproj", "{DAF67DBD-E616-448D-A780-0A448E13B8DD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,10 @@ Global
 		{D5740021-32E8-45B3-A0F1-B3A253F62F9F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D5740021-32E8-45B3-A0F1-B3A253F62F9F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D5740021-32E8-45B3-A0F1-B3A253F62F9F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DAF67DBD-E616-448D-A780-0A448E13B8DD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DAF67DBD-E616-448D-A780-0A448E13B8DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DAF67DBD-E616-448D-A780-0A448E13B8DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DAF67DBD-E616-448D-A780-0A448E13B8DD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

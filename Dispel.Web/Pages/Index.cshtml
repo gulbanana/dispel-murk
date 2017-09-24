@@ -1,0 +1,17 @@
+﻿@page
+@model IndexModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "IRC log converter";
+}
+
+<form asp-page="Download">
+    <label asp-for="Name"></label>
+    <input asp-for="Name" type="text" />
+    <span asp-validation-for="Name" class="text-danger"></span><br />
+    <button type="submit">Download</button>
+</form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
