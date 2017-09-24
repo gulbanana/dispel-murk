@@ -112,7 +112,7 @@ Session Close: Tue Jan 03 18:33:05 2017
             writer.Write(singleSession);
         }
 
-        await Program.Main(new[] { "-f", "html", "cliTests/foo.log" });
+        await Program.Main(new[] { "-o", "html", "cliTests/foo.log" });
 
         Assert.True(File.Exists("cliTests/foo.html"));
     }
@@ -125,7 +125,7 @@ Session Close: Tue Jan 03 18:33:05 2017
             writer.Write(singleSession);
         }
 
-        await Program.Main(new[] { "-f", "text", "cliTests/foo.log" });
+        await Program.Main(new[] { "-o", "text", "cliTests/foo.log" });
 
         Assert.True(File.Exists("cliTests/foo.txt"));
     }
@@ -138,7 +138,7 @@ Session Close: Tue Jan 03 18:33:05 2017
             writer.Write(singleSession);
         }
 
-        await Program.Main(new[] { "-f", "what", "cliTests/foo.log" });
+        await Program.Main(new[] { "-o", "what", "cliTests/foo.log" });
 
         Assert.Single(Directory.EnumerateFiles("cliTests/"));
     }
