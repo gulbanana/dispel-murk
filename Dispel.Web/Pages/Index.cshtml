@@ -5,25 +5,24 @@
     ViewData["Title"] = "IRC log converter";
 }
 
-<form asp-page="Download" class="form-horizontal">
+<div class="row">
+    <h2 class="col-sm-offset-2 col-sm-8">
+        Upload a mIRC log file to convert it to HTML.
+    </h2>
+</div>
+
+<form asp-page="Convert" enctype="multipart/form-data" class="form-horizontal">
     <div class="form-group">
-        <label asp-for="Name" class="col-sm-2 control-label"></label>
-        <div class="col-sm-10">
-            <input asp-for="Name" type="text" class="form-control" />
-            <span asp-validation-for="Name" class="text-danger"></span>
+        <label asp-for="LogFile" class="col-sm-2 control-label"></label>
+        <div class="col-sm-8">
+            <input asp-for="LogFile" type="file" class="form-control" />
+            <span asp-validation-for="LogFile" class="text-danger"></span>
         </div>
-    </div>
-    
-    <div class="form-group">
-        <label for="fake" class="col-sm-2 control-label">Ignored</label>
-        <div class="col-sm-10">
-            <input id="fake" type="text" class="form-control" />
-        </div>    
     </div>
 
     <div class="form-group">
-        <div class="col-sm-offset-2 col-sm-10">
-            <button type="submit" class="btn btn-default ">Download</button>
+        <div class="col-sm-offset-2 col-sm-8">
+            <button type="submit" class="btn btn-default">Convert</button>
         </div>
     </div>
 </form>
