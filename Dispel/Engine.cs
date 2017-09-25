@@ -81,44 +81,7 @@ namespace Dispel
                     }
                     else
                     {
-                        var result = LineParser.Line(line);
-                        if (!result.IsSuccess) throw new Exception("parse error: expected " + result.Expected + Environment.NewLine + result.Remainder);
-                        if (!string.IsNullOrEmpty(result.Remainder)) throw new Exception("parse error: junk after log" + result.Expected + Environment.NewLine + result.Remainder);
-
-                        var username = result.Tree.Children[1].Text;
-                        if (username != "*") // control node
-                        {
-                            var messageNode = result.Tree.Children[2];
-                            var runNodes = messageNode.Children;
-
-                            var runs = runNodes.Select(t =>
-                            {
-                                var attributesNode = t.Children[0];
-                                var textNode = t.Children[1];
-
-                                var attributes = attributesNode.Children.Select(t2 =>
-                                {
-                                    if (t2.Children.Length == 2)
-                                    {
-                                        return new AST.Attribute(t2.Children[0].Text, t2.Children[1].Text);
-                                    }
-                                    else
-                                    {
-                                        return new AST.Attribute(t2.Text);
-                                    }
-                                });
-
-                                return new Run(attributes, textNode.Text);
-                            });
-
-                            var ast = new Line(
-                                result.Tree.Children[0].Text,
-                                username,
-                                new Message(runs)
-                            );
-
-                            sessionLines.Add(ast);
-                        }
+                        ProcessMessage(line);
                     }
                 }
 
@@ -129,6 +92,50 @@ namespace Dispel
                 await writer.WriteLineAsync(outputText);
 
                 await writer.FlushAsync();
+            }
+        }
+
+        private void ProcessMessage(string line)
+        {
+            var result = LineParser.Line(line);
+            if (!result.IsSuccess) throw new Exception("parse error: expected " + result.Expected + Environment.NewLine + result.Remainder);
+            if (!string.IsNullOrEmpty(result.Remainder)) throw new Exception("parse error: junk after log" + result.Expected + Environment.NewLine + result.Remainder);
+
+            var username = result.Tree.Children[1].Text;
+            if (username != "*") // control node
+            {
+                var runNodes = result.Tree.Children[2].Children;
+
+                var runs = new Run[runNodes.Length];
+                for (var i = 0; i < runs.Length; i++)
+                {
+                    var attributeNodes = runNodes[i].Children[0].Children;
+                    var textNode = runNodes[i].Children[1];
+
+                    var attributes = new AST.Attribute[attributeNodes.Length];
+                    for (var j = 0; j < attributes.Length; j++)
+                    {
+                        var t2 = attributeNodes[j];
+                        if (t2.Children.Length == 2)
+                        {
+                            attributes[j] = new AST.Attribute(t2.Children[0].Text, t2.Children[1].Text);
+                        }
+                        else
+                        {
+                            attributes[j] = new AST.Attribute(t2.Text);
+                        }
+                    }
+
+                    runs[i] = new Run(attributes, textNode.Text);
+                }
+
+                var ast = new Line(
+                    result.Tree.Children[0].Text,
+                    username,
+                    new Message(runs)
+                );
+
+                sessionLines.Add(ast);
             }
         }
     }

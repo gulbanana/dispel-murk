@@ -1,15 +1,14 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 
 namespace Dispel.AST
 {
     public class Log
     {
-        public readonly Session[] Sessions;
+        public readonly IReadOnlyList<Session> Sessions;
 
-        public Log(IEnumerable<Session> sessions)
+        public Log(IReadOnlyList<Session> sessions)
         {
-            Sessions = sessions.ToArray();
+            Sessions = sessions;
         }
     }
 }
