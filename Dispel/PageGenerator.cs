@@ -48,23 +48,18 @@ span.c15 { color: rgb(210,210,210); }
 </style>
 ";
 
-        public static string Format(SessionBody log)
+        public static string Format(Log log)
         {
-            var content = string.Join("", log.Messages.Select(Format));
+            var content = string.Join("", log.Sessions.SelectMany(s => s.Body).Select(Format));
             return template + content;
         }
 
-        public static string Format(Message message)
+        public static string Format(Line header)
         {
-            return $"<p class='line'>{Format(message.Header)} {Format(message.Body)}</p>{Environment.NewLine}";
+            return $"<p class='line'><span class='timestamp'>{header.Timestamp}</span> <span class='user'>&lt;{header.Username}&gt;</span> {Format(header.Message)}</p>{Environment.NewLine}";
         }
 
-        public static string Format(MessageHeader header)
-        {
-            return $"<span class='timestamp'>{header.Timestamp}</span> <span class='user'>&lt;{header.Username}&gt;</span>";
-        }
-
-        public static string Format(MessageBody body)
+        public static string Format(Message body)
         {
             var isBold = false;
             var isItalic = false;
@@ -121,7 +116,7 @@ span.c15 { color: rgb(210,210,210); }
                 if (color != null) textClass += "c" + color;
 
                 if (textClass != "") builder.Append($"<span class='{textClass}'>");
-                builder.Append(run.Text);
+                builder.Append(run.Text.Replace("<", "&lt;").Replace(">", "&gt;"));
                 if (textClass != "") builder.Append("</span>");
             }
             return builder.ToString();

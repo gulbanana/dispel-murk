@@ -7,19 +7,19 @@ namespace Dispel
     /// <summary>output a plaintext log file</summary>
     static class TextGenerator
     {
-        public static string Format(SessionBody log)
+        public static string Format(Log log)
         {
-            return string.Join("", log.Messages.Select(Format));
+            return string.Join("", log.Sessions.SelectMany(s => s.Body).Select(Format));
         }
 
-        public static string Format(Message message)
+        public static string Format(Line header)
         {
-            return $"{Format(message.Header)} {message.Body.Flatten()}{Environment.NewLine}";
+            return $"[{header.Timestamp}] <{header.Username}> {Format(header.Message)}";
         }
 
-        public static string Format(MessageHeader header)
+        public static string Format(Message body)
         {
-            return $"[{header.Timestamp}] <{header.Username}>";
+            return $"{body.Flatten()}{Environment.NewLine}";
         }
     }
 }

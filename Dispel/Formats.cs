@@ -26,7 +26,7 @@ namespace Dispel
             }
         }
 
-        public static Func<SessionBody, string> GetGenerator(OutputFormat format)
+        public static Func<Log, string> GetGenerator(OutputFormat format)
         {
             switch (format)
             {

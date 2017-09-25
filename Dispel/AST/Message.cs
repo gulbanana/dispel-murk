@@ -1,14 +1,17 @@
-﻿namespace Dispel.AST
+﻿using System.Collections.Generic;
+using System.Linq;
+
+namespace Dispel.AST
 {
     public class Message
     {
-        public readonly MessageHeader Header;
-        public readonly MessageBody Body;
+        public readonly Run[] Runs;
 
-        public Message(MessageHeader header, MessageBody body)
+        public Message(IEnumerable<Run> runs)
         {
-            Header = header;
-            Body = body;
+            Runs = runs.ToArray();
         }
+
+        public string Flatten() => string.Join("", Runs.Select(r => r.Text));
     }
 }

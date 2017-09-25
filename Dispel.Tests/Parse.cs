@@ -10,7 +10,7 @@ namespace Parse
         public void UnattributedRun()
         {
             var text = "foo";
-            var r = LogParser.AttributedText(text);
+            var r = LineParser.AttributedText(text);
             Assert.True(r.IsSuccess);
         }
 
@@ -18,7 +18,7 @@ namespace Parse
         public void AttributedRun()
         {
             var text = "\x0002foo";
-            var r = LogParser.AttributedText(text);
+            var r = LineParser.AttributedText(text);
             Assert.True(r.IsSuccess);
         }
 
@@ -26,7 +26,7 @@ namespace Parse
         public void MultipleAttributes()
         {
             var text = "\x0002\x001Dfoo";
-            var r = LogParser.AttributedText(text);
+            var r = LineParser.AttributedText(text);
             Assert.True(r.IsSuccess);
         }
 
@@ -34,7 +34,7 @@ namespace Parse
         public void MultipleRuns()
         {
             var text = "foo\x0002bar";
-            var r = LogParser.AttributedText(text);
+            var r = LineParser.AttributedText(text);
             Assert.True(r.IsSuccess);
         }
 
@@ -42,7 +42,7 @@ namespace Parse
         public void FinalAttribute()
         {
             var text = "foo\x0002";
-            var r = LogParser.AttributedText(text);
+            var r = LineParser.AttributedText(text);
             Assert.True(r.IsSuccess);
             Assert.Empty(r.Remainder);
         }
@@ -51,7 +51,7 @@ namespace Parse
         public void FinalAttributeWithoutRuns()
         {
             var text = "\x0002";
-            var r = LogParser.AttributedText(text);
+            var r = LineParser.AttributedText(text);
             Assert.True(r.IsSuccess);
             Assert.Empty(r.Remainder);
         }
@@ -63,7 +63,7 @@ namespace Parse
         public void Reset()
         {
             var text = "\x0003";
-            var r = LogParser.ResetColor(text);
+            var r = LineParser.ResetColor(text);
             Assert.True(r.IsSuccess);
         }
 
@@ -71,7 +71,7 @@ namespace Parse
         public void SingleDigit()
         {
             var text = "\x00031";
-            var r = LogParser.SetColor(text);
+            var r = LineParser.SetColor(text);
             Assert.True(r.IsSuccess);
         }
 
@@ -79,7 +79,7 @@ namespace Parse
         public void DoubleDigit()
         {
             var text = "\x000301";
-            var r = LogParser.SetColor(text);
+            var r = LineParser.SetColor(text);
             Assert.True(r.IsSuccess);
         }
 
@@ -87,43 +87,28 @@ namespace Parse
         public void WithBackground(string input)
         {
             input = "\x0003" + input;
-            var r = LogParser.SetColor(input);
+            var r = LineParser.SetColor(input);
             Assert.True(r.IsSuccess);
             Assert.Empty(r.Remainder);
         }
     }
 
-    public class Header
+    public class Username
     {
         [Fact]
-        public void Basic()
+        public void DumbCharacters()
         {
-            var line = "[09:41] <\x000303player\x000f> ";
-            var r = LogParser.Header(line);
+            var line = "<\x000303pipe|[]\x000f>";
+            var r = LineParser.Username(line);
             Assert.True(r.IsSuccess);
         }
 
-        [Fact]
-        public void WithReset()
-        {
-            var line = "\x000301[09:20] <\x000303gm\x000f> ";
-            var r = LogParser.Header(line);
-            Assert.True(r.IsSuccess);
-        }
 
         [Fact]
         public void Chanop()
         {
-            var line = "[09:41] <\x000303@player\x000f> ";
-            var r = LogParser.Header(line);
-            Assert.True(r.IsSuccess);
-        }
-
-        [Fact]
-        public void DumbUsername()
-        {
-            var line = "[09:41] <\x000303pipe|[]\x000f> ";
-            var r = LogParser.Header(line);
+            var line = "<\x000303@player\x000f> ";
+            var r = LineParser.Username(line);
             Assert.True(r.IsSuccess);
         }
     }
@@ -131,10 +116,26 @@ namespace Parse
     public class Line
     {
         [Fact]
+        public void Basic()
+        {
+            var line = "[09:41] <\x000303player\x000f> ";
+            var r = LineParser.Line(line);
+            Assert.True(r.IsSuccess);
+        }
+
+        [Fact]
+        public void WithReset()
+        {
+            var line = "\x000301[09:20] <\x000303gm\x000f> ";
+            var r = LineParser.Line(line);
+            Assert.True(r.IsSuccess);
+        }
+
+        [Fact]
         public void Control()
         {
-            var input = "03[20:08] * Now talking in #aurora" + Environment.NewLine;
-            var r = LogParser.ControlLine(input);
+            var input = "\x0003[20:08] * Now talking in #aurora";
+            var r = LineParser.Line(input);
             Assert.True(r.IsSuccess);
             Assert.Empty(r.Remainder);
         }
@@ -142,121 +143,100 @@ namespace Parse
         [Fact]
         public void NarrativeMessage()
         {
-            var input = @"[13:02] <03Quaker> 1“Please, lead the way.” 13Claudio will follow the sailor." + Environment.NewLine;
-            var r = LogParser.MessageLine(input);
+            var input = @"[13:02] <03Quaker> 1“Please, lead the way.” 13Claudio will follow the sailor.";
+            var r = LineParser.Line(input);
             Assert.True(r.IsSuccess);
             Assert.Empty(r.Remainder);
         }
     }
 
-    public class Session
-    {
-        [Fact]
-        public void Start()
-        {
-            var input = Environment.NewLine + "Session Start: Thu Feb 16 20:08:29 2017" + Environment.NewLine;
-            var r = LogParser.SessionStart(input);
-            Assert.True(r.IsSuccess);
-            Assert.Empty(r.Remainder);
-        }
+//    public class Log
+//    {
+//        [Fact]
+//        public void CrossMidnight()
+//        {
+//            var input = @"
+//Session Start: Tue Feb 07 22:10:15 2017
+//Session Ident: #SonsAndDoctors
+//03[22:10] * Now talking in #SonsAndDoctors
+//03[22:10] * Topic is 'Exalted: Imperfect Circle (THU 8PM EDT) | Exalted: There Can Be No End (TUE 8PM EDT) | Shadowrun: The Looking-Glass War (MON 8PM EDT) | http://i.imgur.com/0XkYldr.png'
+//03[22:10] * Set by VoxPVoxD!VoxPVoxD@sorcery-q06iee.res.rr.com on Tue Oct 25 10:19:06 2016
+//Session Time: Wed Feb 08 00:00:00 2017
+//03[01:55] * banana is now known as banana|sleep
+//02[01:59] * Disconnected
+//Session Close: Wed Feb 08 01:59:11 2017";
 
-        [Fact]
-        public void MultilineBody()
-        {
-            var input = "[00:01] <\x000303player1\x000f> foo" + Environment.NewLine + "[00:02] <\x000303player2\x000f> bar" + Environment.NewLine;
-            var r = LogParser.SessionBody(input);
-            Assert.True(r.IsSuccess);
-            Assert.Empty(r.Remainder);
-        }
-    }
+//            var r = LineParser.Log(input);
+//            Assert.True(r.IsSuccess);
+//            Assert.Empty(r.Remainder);
+//        }
 
-    public class Log
-    {
-        [Fact]
-        public void CrossMidnight()
-        {
-            var input = @"
-Session Start: Tue Feb 07 22:10:15 2017
-Session Ident: #SonsAndDoctors
-03[22:10] * Now talking in #SonsAndDoctors
-03[22:10] * Topic is 'Exalted: Imperfect Circle (THU 8PM EDT) | Exalted: There Can Be No End (TUE 8PM EDT) | Shadowrun: The Looking-Glass War (MON 8PM EDT) | http://i.imgur.com/0XkYldr.png'
-03[22:10] * Set by VoxPVoxD!VoxPVoxD@sorcery-q06iee.res.rr.com on Tue Oct 25 10:19:06 2016
-Session Time: Wed Feb 08 00:00:00 2017
-03[01:55] * banana is now known as banana|sleep
-02[01:59] * Disconnected
-Session Close: Wed Feb 08 01:59:11 2017";
+//        [Fact]
+//        public void EarlyClose()
+//        {
+//            var input = @"
+//Session Start: Tue Feb 07 20:48:15 2017
+//Session Ident: #SonsAndDoctors
+//03[20:48] * Rejoined channel #SonsAndDoctors
+//03[20:48] * Topic is 'Exalted: Imperfect Circle (THU 8PM EDT) | Exalted: There Can Be No End (TUE 8PM EDT) | Shadowrun: The Looking-Glass War (MON 8PM EDT) | http://i.imgur.com/0XkYldr.png'
+//03[20:48] * Set by VoxPVoxD!VoxPVoxD@sorcery-q06iee.res.rr.com on Tue Oct 25 10:19:06 2016
+//";
 
-            var r = LogParser.Log(input);
-            Assert.True(r.IsSuccess);
-            Assert.Empty(r.Remainder);
-        }
+//            var r = LineParser.Log(input);
+//            Assert.True(r.IsSuccess);
+//            Assert.Empty(r.Remainder);
+//        }
 
-        [Fact]
-        public void EarlyClose()
-        {
-            var input = @"
-Session Start: Tue Feb 07 20:48:15 2017
-Session Ident: #SonsAndDoctors
-03[20:48] * Rejoined channel #SonsAndDoctors
-03[20:48] * Topic is 'Exalted: Imperfect Circle (THU 8PM EDT) | Exalted: There Can Be No End (TUE 8PM EDT) | Shadowrun: The Looking-Glass War (MON 8PM EDT) | http://i.imgur.com/0XkYldr.png'
-03[20:48] * Set by VoxPVoxD!VoxPVoxD@sorcery-q06iee.res.rr.com on Tue Oct 25 10:19:06 2016
-";
+//        [Fact]
+//        public void MultiSession()
+//        {
+//            var input = @"
+//Session Start: Tue Feb 07 22:10:15 2017
+//Session Ident: #SonsAndDoctors
+//03[22:10] * Now talking in #SonsAndDoctors
+//03[22:10] * Topic is 'Exalted: Imperfect Circle (THU 8PM EDT) | Exalted: There Can Be No End (TUE 8PM EDT) | Shadowrun: The Looking-Glass War (MON 8PM EDT) | http://i.imgur.com/0XkYldr.png'
+//03[22:10] * Set by VoxPVoxD!VoxPVoxD@sorcery-q06iee.res.rr.com on Tue Oct 25 10:19:06 2016
+//03[01:55] * banana is now known as banana|sleep
+//02[01:59] * Disconnected
+//Session Close: Wed Feb 08 01:59:11 2017
 
-            var r = LogParser.Log(input);
-            Assert.True(r.IsSuccess);
-            Assert.Empty(r.Remainder);
-        }
+//Session Start: Tue Feb 07 22:10:15 2017
+//Session Ident: #SonsAndDoctors
+//03[22:10] * Now talking in #SonsAndDoctors
+//03[22:10] * Topic is 'Exalted: Imperfect Circle (THU 8PM EDT) | Exalted: There Can Be No End (TUE 8PM EDT) | Shadowrun: The Looking-Glass War (MON 8PM EDT) | http://i.imgur.com/0XkYldr.png'
+//03[22:10] * Set by VoxPVoxD!VoxPVoxD@sorcery-q06iee.res.rr.com on Tue Oct 25 10:19:06 2016
+//03[01:55] * banana is now known as banana|sleep
+//02[01:59] * Disconnected
+//Session Close: Wed Feb 08 01:59:11 2017";
 
-        [Fact]
-        public void MultiSession()
-        {
-            var input = @"
-Session Start: Tue Feb 07 22:10:15 2017
-Session Ident: #SonsAndDoctors
-03[22:10] * Now talking in #SonsAndDoctors
-03[22:10] * Topic is 'Exalted: Imperfect Circle (THU 8PM EDT) | Exalted: There Can Be No End (TUE 8PM EDT) | Shadowrun: The Looking-Glass War (MON 8PM EDT) | http://i.imgur.com/0XkYldr.png'
-03[22:10] * Set by VoxPVoxD!VoxPVoxD@sorcery-q06iee.res.rr.com on Tue Oct 25 10:19:06 2016
-03[01:55] * banana is now known as banana|sleep
-02[01:59] * Disconnected
-Session Close: Wed Feb 08 01:59:11 2017
+//            var r = LineParser.Log(input);
+//            Assert.True(r.IsSuccess);
+//            Assert.Empty(r.Remainder);
+//        }
 
-Session Start: Tue Feb 07 22:10:15 2017
-Session Ident: #SonsAndDoctors
-03[22:10] * Now talking in #SonsAndDoctors
-03[22:10] * Topic is 'Exalted: Imperfect Circle (THU 8PM EDT) | Exalted: There Can Be No End (TUE 8PM EDT) | Shadowrun: The Looking-Glass War (MON 8PM EDT) | http://i.imgur.com/0XkYldr.png'
-03[22:10] * Set by VoxPVoxD!VoxPVoxD@sorcery-q06iee.res.rr.com on Tue Oct 25 10:19:06 2016
-03[01:55] * banana is now known as banana|sleep
-02[01:59] * Disconnected
-Session Close: Wed Feb 08 01:59:11 2017";
+//        [Fact]
+//        public void UnclosedSession()
+//        {
+//            var input = @"
+//Session Start: Tue Feb 07 20:48:15 2017
+//Session Ident: #SonsAndDoctors
+//03[20:48] * Rejoined channel #SonsAndDoctors
+//03[20:48] * Topic is 'Exalted: Imperfect Circle (THU 8PM EDT) | Exalted: There Can Be No End (TUE 8PM EDT) | Shadowrun: The Looking-Glass War (MON 8PM EDT) | http://i.imgur.com/0XkYldr.png'
+//03[20:48] * Set by VoxPVoxD!VoxPVoxD@sorcery-q06iee.res.rr.com on Tue Oct 25 10:19:06 2016
 
-            var r = LogParser.Log(input);
-            Assert.True(r.IsSuccess);
-            Assert.Empty(r.Remainder);
-        }
+//Session Start: Tue Feb 07 22:10:15 2017
+//Session Ident: #SonsAndDoctors
+//03[22:10] * Now talking in #SonsAndDoctors
+//03[22:10] * Topic is 'Exalted: Imperfect Circle (THU 8PM EDT) | Exalted: There Can Be No End (TUE 8PM EDT) | Shadowrun: The Looking-Glass War (MON 8PM EDT) | http://i.imgur.com/0XkYldr.png'
+//03[22:10] * Set by VoxPVoxD!VoxPVoxD@sorcery-q06iee.res.rr.com on Tue Oct 25 10:19:06 2016
+//Session Time: Wed Feb 08 00:00:00 2017
+//03[01:55] * banana is now known as banana|sleep
+//02[01:59] * Disconnected
+//Session Close: Wed Feb 08 01:59:11 2017";
 
-        [Fact]
-        public void UnclosedSession()
-        {
-            var input = @"
-Session Start: Tue Feb 07 20:48:15 2017
-Session Ident: #SonsAndDoctors
-03[20:48] * Rejoined channel #SonsAndDoctors
-03[20:48] * Topic is 'Exalted: Imperfect Circle (THU 8PM EDT) | Exalted: There Can Be No End (TUE 8PM EDT) | Shadowrun: The Looking-Glass War (MON 8PM EDT) | http://i.imgur.com/0XkYldr.png'
-03[20:48] * Set by VoxPVoxD!VoxPVoxD@sorcery-q06iee.res.rr.com on Tue Oct 25 10:19:06 2016
-
-Session Start: Tue Feb 07 22:10:15 2017
-Session Ident: #SonsAndDoctors
-03[22:10] * Now talking in #SonsAndDoctors
-03[22:10] * Topic is 'Exalted: Imperfect Circle (THU 8PM EDT) | Exalted: There Can Be No End (TUE 8PM EDT) | Shadowrun: The Looking-Glass War (MON 8PM EDT) | http://i.imgur.com/0XkYldr.png'
-03[22:10] * Set by VoxPVoxD!VoxPVoxD@sorcery-q06iee.res.rr.com on Tue Oct 25 10:19:06 2016
-Session Time: Wed Feb 08 00:00:00 2017
-03[01:55] * banana is now known as banana|sleep
-02[01:59] * Disconnected
-Session Close: Wed Feb 08 01:59:11 2017";
-
-            var r = LogParser.Log(input);
-            Assert.True(r.IsSuccess);
-            Assert.Empty(r.Remainder);
-        }
-    }
+//            var r = LineParser.Log(input);
+//            Assert.True(r.IsSuccess);
+//            Assert.Empty(r.Remainder);
+//        }
+//    }
 }

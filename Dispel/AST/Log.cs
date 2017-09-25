@@ -9,7 +9,7 @@ namespace Dispel.AST
 
         public Log(IEnumerable<Session> sessions)
         {
-            Sessions = sessions.Where(s => s.Body.Messages.Any()).ToArray();
+            Sessions = sessions.ToArray();
         }
     }
 }

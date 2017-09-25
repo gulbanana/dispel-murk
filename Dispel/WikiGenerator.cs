@@ -7,20 +7,22 @@ namespace Dispel
     /// <summary>output special HTML for the Obsidian Portal wiki</summary>
     static class WikiGenerator
     {
-        public static string Format(SessionBody log)
+        public static string Format(Log log)
         {
-            return string.Join("", log.Messages.Select(Format));
+            var lines = log.Sessions.SelectMany(s => s.Body).ToArray();
+            var maxUsername = lines.Select(line => line.Username.Length).Max();
+            return string.Join("", lines.Select(l => Format(l, maxUsername)));
+        }
+
+        public static string Format(Line line, int maxUsername)
+        {
+            var padding = "".PadRight(maxUsername + 1 - line.Username.Length).Replace(" ", "&nbsp;");
+            return $"<span style='font-family:monospace;'><span style='color:#a9a9a9;'>{line.Timestamp}</span>&nbsp;<b>&lt;{line.Username}&gt;</b>{padding}</span> {Format(line.Message)}";
         }
 
         public static string Format(Message message)
         {
-            return $"{Format(message.Header)} {message.Body.Flatten()}<br>{Environment.NewLine}";
-        }
-
-        public static string Format(MessageHeader header)
-        {
-            var padding = "".PadRight(9 - header.Username.Length).Replace(" ", "&nbsp;");
-            return $"<span style='font-family:monospace;'><span style='color:#a9a9a9;'>{header.Timestamp}</span>&nbsp;<b>&lt;{header.Username}&gt;</b>{padding}</span>";
+            return $"{message.Flatten()}<br>{Environment.NewLine}";
         }
     }
 }

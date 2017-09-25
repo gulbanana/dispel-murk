@@ -1,14 +1,16 @@
 ﻿namespace Dispel.AST
 {
-    public class MessageHeader
+    public class Line
     {
         public readonly string Timestamp;
         public readonly string Username;
+        public readonly Message Message;
 
-        public MessageHeader(string timestamp, string username)
+        public Line(string timestamp, string username, Message message)
         {
             Timestamp = timestamp;
             Username = username;
+            Message = message;
         }
     }
 }
