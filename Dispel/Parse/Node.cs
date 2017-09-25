@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -9,14 +8,13 @@ namespace Dispel.Parse
     {
         public readonly NodeType Type;
         public readonly string Text;
-        public readonly IReadOnlyList<Node> Children;
+        public readonly Node[] Children;
 
         public Node(NodeType type, string text = null, IEnumerable<Node> children = null)
         {
             Type = type;
             Text = text;
-            if (children.Any(n => n.Type == NodeType.Empty)) throw new Exception();
-            Children = (children ?? Enumerable.Empty<Node>()).Where(n => n.Type != NodeType.Empty).ToList();
+            Children = children == null ? Array.Empty<Node>() : children.ToArray();
         }
 
         public override string ToString()

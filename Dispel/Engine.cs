@@ -98,7 +98,7 @@ namespace Dispel
 
                                 var attributes = attributesNode.Children.Select(t2 =>
                                 {
-                                    if (t2.Children.Count == 2)
+                                    if (t2.Children.Length == 2)
                                     {
                                         return new AST.Attribute(t2.Children[0].Text, t2.Children[1].Text);
                                     }
