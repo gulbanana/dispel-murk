@@ -85,10 +85,38 @@ namespace Dispel
                         if (!result.IsSuccess) throw new Exception("parse error: expected " + result.Expected + Environment.NewLine + result.Remainder);
                         if (!string.IsNullOrEmpty(result.Remainder)) throw new Exception("parse error: junk after log" + result.Expected + Environment.NewLine + result.Remainder);
 
-                        var ast = result.Tree.Build<Line>();
-
-                        if (ast.Username != "*") // control line
+                        var username = result.Tree.Children[1].Text;
+                        if (username != "*") // control node
                         {
+                            var messageNode = result.Tree.Children[2];
+                            var runNodes = messageNode.Children;
+
+                            var runs = runNodes.Select(t =>
+                            {
+                                var attributesNode = t.Children[0];
+                                var textNode = t.Children[1];
+
+                                var attributes = attributesNode.Children.Select(t2 =>
+                                {
+                                    if (t2.Children.Count == 2)
+                                    {
+                                        return new AST.Attribute(t2.Children[0].Text, t2.Children[1].Text);
+                                    }
+                                    else
+                                    {
+                                        return new AST.Attribute(t2.Text);
+                                    }
+                                });
+
+                                return new Run(attributes, textNode.Text);
+                            });
+
+                            var ast = new Line(
+                                result.Tree.Children[0].Text,
+                                username,
+                                new Message(runs)
+                            );
+
                             sessionLines.Add(ast);
                         }
                     }
