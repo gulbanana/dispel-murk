@@ -92,7 +92,7 @@ span.c15 { color: rgb(210,210,210); }
                             }
                             else
                             {
-                                color = int.Parse(attribute.Options.Split(",").First()).ToString();
+                                color = int.Parse(attribute.Options.Split(',').First()).ToString();
                             }
                             break;
 
