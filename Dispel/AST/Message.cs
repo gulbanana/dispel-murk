@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 
 namespace Dispel.AST
 {
@@ -7,9 +6,9 @@ namespace Dispel.AST
     {
         public readonly Run[] Runs;
 
-        public Message(IEnumerable<Run> runs)
+        public Message(Run[] runs)
         {
-            Runs = runs.ToArray();
+            Runs = runs;
         }
 
         public string Flatten() => string.Join("", Runs.Select(r => r.Text));

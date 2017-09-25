@@ -60,14 +60,6 @@ namespace Parse
     public class Color
     {
         [Fact]
-        public void Reset()
-        {
-            var text = "\x0003";
-            var r = LineParser.ResetColor(text);
-            Assert.True(r.IsSuccess);
-        }
-
-        [Fact]
         public void SingleDigit()
         {
             var text = "\x00031";
@@ -134,7 +126,7 @@ namespace Parse
         [Fact]
         public void Control()
         {
-            var input = "\x0003[20:08] * Now talking in #aurora";
+            var input = "\x000303[20:08] * Now talking in #aurora";
             var r = LineParser.Line(input);
             Assert.True(r.IsSuccess);
             Assert.Empty(r.Remainder);
