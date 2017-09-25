@@ -11,11 +11,16 @@ namespace Dispel.Web.Pages
         [BindProperty, Required, Display(Name = "Log File")]
         public IFormFile LogFile { get; set; }
 
+        [BindProperty, Required]
+        public string Format { get; set; }
+
         public async Task<ActionResult> OnPostAsync()
         {
+            var f = Formats.Parse(Format);
+
             using (var file = LogFile.OpenReadStream())
             {
-                await Engine.ConvertAsync(file, Response.Body, OutputFormat.HTML);
+                await Engine.ConvertAsync(file, Response.Body, f);
             }
 
             return new EmptyResult();

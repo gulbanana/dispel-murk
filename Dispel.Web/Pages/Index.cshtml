@@ -7,7 +7,7 @@
 
 <div class="row">
     <h2 class="col-sm-offset-2 col-sm-8">
-        Upload a mIRC log file to convert it to HTML.
+        Upload a mIRC .log file to convert.
     </h2>
 </div>
 
@@ -18,6 +18,19 @@
             <input asp-for="LogFile" type="file" class="form-control" />
             <span asp-validation-for="LogFile" class="text-danger"></span>
         </div>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Format" class="col-sm-2 control-label"></label>
+        <div class="col-sm-8">
+            <label class="radio-inline">
+                <input asp-for="Format" type="radio" value="html" checked> HTML
+            </label>
+            <label class="radio-inline">
+                <input asp-for="Format" type="radio" value="text"> Plain text
+            </label>
+        </div>
+        <span asp-validation-for="Format" class="text-danger"></span>
     </div>
 
     <div class="form-group">
