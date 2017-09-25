@@ -5,11 +5,11 @@ namespace Dispel.AST
 {
     public class Log
     {
-        public readonly Message[] Messages;
+        public readonly Session[] Sessions;
 
-        public Log(IEnumerable<Message> messages)
+        public Log(IEnumerable<Session> sessions)
         {
-            Messages = messages.ToArray();
+            Sessions = sessions.Where(s => s.Body.Messages.Any()).ToArray();
         }
     }
 }

@@ -18,12 +18,30 @@ namespace Dispel
         public static readonly Parser Run = Sequence(Attributes, Text);
         public static readonly Parser AttributedText = Sequence(Set(Run), Skip(Optional(Attributes)));
 
-        public static readonly Parser Timestamp = Sequence(Skip(@"\["), Term(@"\d\d:\d\d"), Skip(@"\]"));
-        public static readonly Parser Username = Sequence(Skip(@"\s<"), Skip(SetColor), Optional(Skip(@"@")), Term(@"\w+"), Skip(FullReset), Skip(@">\s"));
-        public static readonly Parser Header = Sequence(Skip(Optional(SetColor)), Timestamp, Username);
+        public static readonly Parser Timestamp = Sequence(Skip(Optional(SetColor)), Skip(@"\["), Term(@"\d\d:\d\d"), Skip(@"\]"));
+        public static readonly Parser Username = Sequence(Skip(@"\s<"), Skip(SetColor), Optional(Skip(@"@")), Term(@"[\w|\[\]]+"), Skip(FullReset), Skip(@">\s"));
+        public static readonly Parser Header = Sequence(Timestamp, Username);
+        public static readonly Parser Newline = Skip(@"\r?\n");
 
-        public static readonly Parser Message = Sequence(Header, AttributedText);
-        public static readonly Parser Newline = Term(@"\r?\n");
-        public static readonly Parser Log = RequiredSet(Sequence(Message, Skip(Newline)));
+        public static readonly Parser MessageLine = Sequence(Header, AttributedText, Newline);
+        public static readonly Parser ControlLine = Sequence(Timestamp, Term(@"\s\*\s"), AttributedText, Newline);
+        public static readonly Parser TimeLine = Sequence(Skip(@"Session\sTime:\s"), Text, Newline);
+        public static readonly Parser SessionBody = RequiredSet(Any(MessageLine, Skip(ControlLine), Skip(TimeLine)));
+
+        public static readonly Parser SessionStart = Sequence(Newline, Skip(@"Session\sStart:\s"), Text, Newline);
+        public static readonly Parser SessionIdent = Sequence(Skip(@"Session\sIdent:\s"), Text, Newline);
+        public static readonly Parser SessionClose = Sequence(Skip(@"Session\sClose:\s"), Text, Newline);
+        public static readonly Parser Session = Any(
+            Sequence(
+                Optional(SessionStart, "unknown start time"), 
+                Optional(SessionIdent, "unknown ident"), 
+                SessionBody,
+                Optional(SessionClose, "unknown end time")),
+            Sequence(
+                SessionStart,
+                SessionIdent,
+                Optional(SessionClose, "unknown end time")));
+
+        public static readonly Parser Log = RequiredSet(Session);
     }
 }

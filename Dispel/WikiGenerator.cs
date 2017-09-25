@@ -7,7 +7,7 @@ namespace Dispel
     /// <summary>output special HTML for the Obsidian Portal wiki</summary>
     static class WikiGenerator
     {
-        public static string Format(Log log)
+        public static string Format(SessionBody log)
         {
             return string.Join("", log.Messages.Select(Format));
         }

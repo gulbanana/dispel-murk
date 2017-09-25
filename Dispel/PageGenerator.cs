@@ -48,7 +48,7 @@ span.c15 { color: rgb(210,210,210); }
 </style>
 ";
 
-        public static string Format(Log log)
+        public static string Format(SessionBody log)
         {
             var content = string.Join("", log.Messages.Select(Format));
             return template + content;

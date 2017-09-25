@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Dispel
@@ -19,7 +20,11 @@ namespace Dispel
                 var result = parser(inputText);
                 if (!result.IsSuccess)
                 {
-                    writer.WriteLine($"parse error! expected: {result.Expected}; found: '{result.Remainder.Split(Environment.NewLine)[0]}'");
+                    writer.WriteLine($"parse error! expected: {Environment.NewLine}{result.Expected}{Environment.NewLine}found:{Environment.NewLine}{result.Remainder}");
+                }
+                else if (!string.IsNullOrEmpty(result.Remainder))
+                {
+                    writer.WriteLine($"parse error! found input, but also extra data:{Environment.NewLine}{result.Remainder}");
                 }
                 else if (result.Tree.Type == Parse.NodeType.Empty)
                 {
@@ -28,7 +33,7 @@ namespace Dispel
                 else
                 {
                     var ast = result.Tree.Build<AST.Log>();
-                    var outputText = generator(ast);
+                    var outputText = generator(new AST.SessionBody(ast.Sessions.SelectMany(s => s.Body.Messages)));
                     await writer.WriteLineAsync(outputText);
                 }
 

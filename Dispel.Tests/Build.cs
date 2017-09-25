@@ -51,8 +51,8 @@ public class Build
     [Fact]
     public void SimpleMessage()
     {
-        var input = "[00:01] <\x000303player1\x000f> foo";
-        var r = LogParser.Message(input);
+        var input = "[00:01] <\x000303player1\x000f> foo" + Environment.NewLine;
+        var r = LogParser.MessageLine(input);
         var ast = r.Tree.Build<Message>();
 
         Assert.Equal("player1", ast.Header.Username);
@@ -63,8 +63,8 @@ public class Build
     [Fact]
     public void ComplexMessage()
     {
-        var input = @"[10:15] <03Quaker> 13Claudio doesn’t move. Both he and Bianca are too polite to do anything except smile pleasantly. “Good evening.” 13The man spoke in English, and Claudio does as well: crisp, only very slightly accented. ";
-        var r = LogParser.Message(input);
+        var input = @"[10:15] <03Quaker> 13Claudio doesn’t move. Both he and Bianca are too polite to do anything except smile pleasantly. “Good evening.” 13The man spoke in English, and Claudio does as well: crisp, only very slightly accented. " + Environment.NewLine;
+        var r = LogParser.MessageLine(input);
 
         var ast = r.Tree.Build<Message>();
         Assert.Equal(3, ast.Body.Runs.Length);
@@ -84,7 +84,7 @@ public class Build
     public void MultilineSession()
     {
         var input = "[00:01] <\x000303player1\x000f> foo" + Environment.NewLine + "[00:02] <\x000303player2\x000f> bar" + Environment.NewLine;
-        var r = LogParser.Log(input);
-        var ast = r.Tree.Build<Log>();
+        var r = LogParser.SessionBody(input);
+        var ast = r.Tree.Build<SessionBody>();
     }
 }

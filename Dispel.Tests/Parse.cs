@@ -118,29 +118,145 @@ namespace Parse
             var r = LogParser.Header(line);
             Assert.True(r.IsSuccess);
         }
+
+        [Fact]
+        public void DumbUsername()
+        {
+            var line = "[09:41] <\x000303pipe|[]\x000f> ";
+            var r = LogParser.Header(line);
+            Assert.True(r.IsSuccess);
+        }
     }
 
     public class Line
     {
         [Fact]
-        public void NarrativeAfterDialogue()
+        public void Control()
         {
-            var input = @"[13:02] <03Quaker> 1“Please, lead the way.” 13Claudio will follow the sailor.";
-            var r = LogParser.Message(input);
+            var input = "03[20:08] * Now talking in #aurora" + Environment.NewLine;
+            var r = LogParser.ControlLine(input);
             Assert.True(r.IsSuccess);
+            Assert.Empty(r.Remainder);
+        }
+
+        [Fact]
+        public void NarrativeMessage()
+        {
+            var input = @"[13:02] <03Quaker> 1“Please, lead the way.” 13Claudio will follow the sailor." + Environment.NewLine;
+            var r = LogParser.MessageLine(input);
+            Assert.True(r.IsSuccess);
+            Assert.Empty(r.Remainder);
+        }
+    }
+
+    public class Session
+    {
+        [Fact]
+        public void Start()
+        {
+            var input = Environment.NewLine + "Session Start: Thu Feb 16 20:08:29 2017" + Environment.NewLine;
+            var r = LogParser.SessionStart(input);
+            Assert.True(r.IsSuccess);
+            Assert.Empty(r.Remainder);
+        }
+
+        [Fact]
+        public void MultilineBody()
+        {
+            var input = "[00:01] <\x000303player1\x000f> foo" + Environment.NewLine + "[00:02] <\x000303player2\x000f> bar" + Environment.NewLine;
+            var r = LogParser.SessionBody(input);
+            Assert.True(r.IsSuccess);
+            Assert.Empty(r.Remainder);
         }
     }
 
     public class Log
     {
         [Fact]
-        public void Multiline()
+        public void CrossMidnight()
         {
-            var input = "[00:01] <\x000303player1\x000f> foo" + Environment.NewLine + "[00:02] <\x000303player2\x000f> bar" + Environment.NewLine;
+            var input = @"
+Session Start: Tue Feb 07 22:10:15 2017
+Session Ident: #SonsAndDoctors
+03[22:10] * Now talking in #SonsAndDoctors
+03[22:10] * Topic is 'Exalted: Imperfect Circle (THU 8PM EDT) | Exalted: There Can Be No End (TUE 8PM EDT) | Shadowrun: The Looking-Glass War (MON 8PM EDT) | http://i.imgur.com/0XkYldr.png'
+03[22:10] * Set by VoxPVoxD!VoxPVoxD@sorcery-q06iee.res.rr.com on Tue Oct 25 10:19:06 2016
+Session Time: Wed Feb 08 00:00:00 2017
+03[01:55] * banana is now known as banana|sleep
+02[01:59] * Disconnected
+Session Close: Wed Feb 08 01:59:11 2017";
+
+            var r = LogParser.Log(input);
+            Assert.True(r.IsSuccess);
+            Assert.Empty(r.Remainder);
+        }
+
+        [Fact]
+        public void EarlyClose()
+        {
+            var input = @"
+Session Start: Tue Feb 07 20:48:15 2017
+Session Ident: #SonsAndDoctors
+03[20:48] * Rejoined channel #SonsAndDoctors
+03[20:48] * Topic is 'Exalted: Imperfect Circle (THU 8PM EDT) | Exalted: There Can Be No End (TUE 8PM EDT) | Shadowrun: The Looking-Glass War (MON 8PM EDT) | http://i.imgur.com/0XkYldr.png'
+03[20:48] * Set by VoxPVoxD!VoxPVoxD@sorcery-q06iee.res.rr.com on Tue Oct 25 10:19:06 2016
+";
+
+            var r = LogParser.Log(input);
+            Assert.True(r.IsSuccess);
+            Assert.Empty(r.Remainder);
+        }
+
+        [Fact]
+        public void MultiSession()
+        {
+            var input = @"
+Session Start: Tue Feb 07 22:10:15 2017
+Session Ident: #SonsAndDoctors
+03[22:10] * Now talking in #SonsAndDoctors
+03[22:10] * Topic is 'Exalted: Imperfect Circle (THU 8PM EDT) | Exalted: There Can Be No End (TUE 8PM EDT) | Shadowrun: The Looking-Glass War (MON 8PM EDT) | http://i.imgur.com/0XkYldr.png'
+03[22:10] * Set by VoxPVoxD!VoxPVoxD@sorcery-q06iee.res.rr.com on Tue Oct 25 10:19:06 2016
+03[01:55] * banana is now known as banana|sleep
+02[01:59] * Disconnected
+Session Close: Wed Feb 08 01:59:11 2017
+
+Session Start: Tue Feb 07 22:10:15 2017
+Session Ident: #SonsAndDoctors
+03[22:10] * Now talking in #SonsAndDoctors
+03[22:10] * Topic is 'Exalted: Imperfect Circle (THU 8PM EDT) | Exalted: There Can Be No End (TUE 8PM EDT) | Shadowrun: The Looking-Glass War (MON 8PM EDT) | http://i.imgur.com/0XkYldr.png'
+03[22:10] * Set by VoxPVoxD!VoxPVoxD@sorcery-q06iee.res.rr.com on Tue Oct 25 10:19:06 2016
+03[01:55] * banana is now known as banana|sleep
+02[01:59] * Disconnected
+Session Close: Wed Feb 08 01:59:11 2017";
+
+            var r = LogParser.Log(input);
+            Assert.True(r.IsSuccess);
+            Assert.Empty(r.Remainder);
+        }
+
+        [Fact]
+        public void UnclosedSession()
+        {
+            var input = @"
+Session Start: Tue Feb 07 20:48:15 2017
+Session Ident: #SonsAndDoctors
+03[20:48] * Rejoined channel #SonsAndDoctors
+03[20:48] * Topic is 'Exalted: Imperfect Circle (THU 8PM EDT) | Exalted: There Can Be No End (TUE 8PM EDT) | Shadowrun: The Looking-Glass War (MON 8PM EDT) | http://i.imgur.com/0XkYldr.png'
+03[20:48] * Set by VoxPVoxD!VoxPVoxD@sorcery-q06iee.res.rr.com on Tue Oct 25 10:19:06 2016
+
+Session Start: Tue Feb 07 22:10:15 2017
+Session Ident: #SonsAndDoctors
+03[22:10] * Now talking in #SonsAndDoctors
+03[22:10] * Topic is 'Exalted: Imperfect Circle (THU 8PM EDT) | Exalted: There Can Be No End (TUE 8PM EDT) | Shadowrun: The Looking-Glass War (MON 8PM EDT) | http://i.imgur.com/0XkYldr.png'
+03[22:10] * Set by VoxPVoxD!VoxPVoxD@sorcery-q06iee.res.rr.com on Tue Oct 25 10:19:06 2016
+Session Time: Wed Feb 08 00:00:00 2017
+03[01:55] * banana is now known as banana|sleep
+02[01:59] * Disconnected
+Session Close: Wed Feb 08 01:59:11 2017";
+
             var r = LogParser.Log(input);
             Assert.True(r.IsSuccess);
             Assert.Empty(r.Remainder);
         }
     }
-
 }

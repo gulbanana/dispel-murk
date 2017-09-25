@@ -51,7 +51,6 @@ namespace Dispel.CommandLine
                 var format = Formats.Parse(formatName);
                 await ConvertAsync(format, logPaths, quiet);
             }
-
         }
 
         private static async Task ConvertAsync(OutputFormat format, IReadOnlyList<string> logPaths, bool quiet)

@@ -53,6 +53,18 @@ namespace Dispel.Parse
             };
         }
 
+        public static Parser Optional(Parser p, string @default)
+        {
+            return text =>
+            {
+                var r = p(text);
+                if (r.IsSuccess)
+                    return r;
+                else
+                    return ParseResult.Success(new Node(NodeType.Terminal, @default), r.Remainder);
+            };
+        }
+
         public static Parser Sequence(params Parser[] parsers)
         {
             return text =>

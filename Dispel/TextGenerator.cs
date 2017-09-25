@@ -7,7 +7,7 @@ namespace Dispel
     /// <summary>output a plaintext log file</summary>
     static class TextGenerator
     {
-        public static string Format(Log log)
+        public static string Format(SessionBody log)
         {
             return string.Join("", log.Messages.Select(Format));
         }
