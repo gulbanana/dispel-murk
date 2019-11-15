@@ -9,10 +9,27 @@ namespace Dispel
 {
     public class Engine
     {
-        public static Task ConvertAsync(Stream input, Stream output, OutputFormat format)
+        public static async Task ConvertAsync(Stream input, Stream output, OutputFormat format)
         {
-            var state = new Engine();
-            return state.ConvertImpl(input, output, format);
+            var generator = Formats.GetGenerator(format);
+            var engine = new Engine();
+            var sessions = await engine.GetSessions(input);
+            var log = new Log(sessions);
+            var outputText = generator(log);
+
+            using (var writer = new StreamWriter(output))
+            {
+                await writer.WriteLineAsync(outputText);
+                await writer.FlushAsync();
+            }
+        }
+
+        public static async Task<List<string>> ConvertMultisessionAsync(Stream input, OutputFormat format)
+        {
+            var generator = Formats.GetGenerator(format);
+            var engine = new Engine();
+            var sessions = await engine.GetSessions(input);
+            return sessions.Select(s => new Log(new[]{s})).Select(generator).ToList();
         }
 
         private readonly List<Session> sessions;
@@ -42,12 +59,9 @@ namespace Dispel
             sessionEnd = null;
         }
         
-        public async Task ConvertImpl(Stream input, Stream output, OutputFormat format)
+        private async Task<List<Session>> GetSessions(Stream input)
         { 
-            var generator = Formats.GetGenerator(format);
-
-            using (var reader = new StreamReader(input))
-            using (var writer = new StreamWriter(output))
+            using (var reader = new StreamReader(input))            
             {
                 while (!reader.EndOfStream)
                 {
@@ -87,11 +101,7 @@ namespace Dispel
 
                 FlushSession();
 
-                var log = new Log(sessions);
-                var outputText = generator(log);
-                await writer.WriteLineAsync(outputText);
-
-                await writer.FlushAsync();
+                return sessions;
             }
         }
 

@@ -14,11 +14,13 @@ namespace Dispel.CommandLine
             IReadOnlyList<string> logPaths = Array.Empty<string>();
             var formatName = "html";
             var quiet = false;
+            var multi = false;
 
             ArgumentSyntax.Parse(args, syntax =>
             {
                 syntax.DefineOption("o|outputFormat", ref formatName, "output format - (html|text|wiki|all)");
                 syntax.DefineOption("q|quiet", ref quiet, "suppress output");
+                syntax.DefineOption("m|multi-session", ref multi, "generate multiple outputs");
                 syntax.DefineParameterList("logs", ref logPaths, "log files to convert");
             });
 
@@ -43,17 +45,17 @@ namespace Dispel.CommandLine
             {
                 foreach (var format in new[] { OutputFormat.HTML, OutputFormat.Text, OutputFormat.Wiki })
                 {
-                    await ConvertAsync(format, logPaths, quiet);
+                    await ConvertAsync(format, logPaths, quiet, multi);
                 }
             }
             else
             {
                 var format = Formats.Parse(formatName);
-                await ConvertAsync(format, logPaths, quiet);
+                await ConvertAsync(format, logPaths, quiet, multi);
             }
         }
 
-        private static async Task ConvertAsync(OutputFormat format, IReadOnlyList<string> logPaths, bool quiet)
+        private static async Task ConvertAsync(OutputFormat format, IReadOnlyList<string> logPaths, bool quiet, bool multi)
         {
             foreach (var logPath in logPaths)
             {
@@ -66,16 +68,32 @@ namespace Dispel.CommandLine
                 var inputFile = Path.GetFullPath(logPath);
                 if (!quiet) Console.WriteLine($"Processing {inputFile}...");
 
-                var outputFile = Path.ChangeExtension(inputFile, Formats.GetFileExtension(format));
-                using (var inputStream = File.OpenRead(inputFile))
+                if (multi)
                 {
-                    using (var outputStream = File.OpenWrite(outputFile))
+                    using (var inputStream = File.OpenRead(inputFile))
                     {
-                        await Engine.ConvertAsync(inputStream, outputStream, format);
+                        var logs = await Engine.ConvertMultisessionAsync(inputStream, format);
+                        int idx = 0;
+                        foreach (var log in logs)
+                        {
+                            var outputFile = $"{Path.GetFileNameWithoutExtension(inputFile)}-{idx++}.{Formats.GetFileExtension(format)}";
+                            await File.WriteAllTextAsync(outputFile, log);
+                            if (!quiet) Console.WriteLine($"Created {outputFile}.");
+                        }
                     }
                 }
-
-                if (!quiet) Console.WriteLine($"Created {outputFile}.");
+                else
+                {
+                    var outputFile = Path.ChangeExtension(inputFile, Formats.GetFileExtension(format));
+                    using (var inputStream = File.OpenRead(inputFile))
+                    {
+                        using (var outputStream = File.OpenWrite(outputFile))
+                        {
+                            await Engine.ConvertAsync(inputStream, outputStream, format);
+                        }
+                    }
+                    if (!quiet) Console.WriteLine($"Created {outputFile}.");
+                }
             }
         }
     }
