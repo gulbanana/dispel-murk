@@ -1,0 +1,54 @@
+/* general formatting */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+    color: rgb(15, 15, 15);
+}
+
+/* mIRC colours, approximated */
+span.c0 { color: rgb(255,255,255); }
+span.c1 { color: rgb(0,0,0); }
+span.c2 { color: rgb(0,0,127); }
+span.c3 { color: rgb(0,147,0); }
+span.c4 { color: rgb(255,0,0); }
+span.c5 { color: rgb(136,72,72); }
+span.c6 { color: rgb(156,0,156); }
+span.c7 { color: rgb(252,127,0); }
+span.c8 { color: rgb(255,255,0); }
+span.c9 { color: rgb(0,252,0); }
+span.c10 { color: rgb(0,147,147); }
+span.c11 { color: rgb(0,255,255); }
+span.c12 { color: rgb(0,0,252); }
+span.c13 { color: rgb(255,0,255); }
+span.c14 { color: rgb(127,127,127); }
+span.c15 { color: rgb(210,210,210); }
+
+/* mIRC styles */
+span.b { font-weight: bold; }
+span.u { text-decoration: underline; }
+span.i { font-style: italic; }
+
+/* mIRC log elements */
+span.user {
+    font-weight: bold;
+}
+
+span.timestamp {
+    color: rgb(128, 128, 128);
+}
+
+p.line {
+    margin: 0;
+    padding: 0;
+}
+
+/* index page elements */
+
+.session-grid {
+    display: grid;
+    grid-template-columns: auto auto 1fr;
+    grid-column-gap: 2em;
+}
+
+.th {
+    font-weight: bold;
+}
