@@ -3,7 +3,8 @@
     public enum OutputFormat
     {
         Text,
-        HTML,
+        WebPage,
+        WebSite,
         Wiki,
     }
 }

@@ -12,15 +12,15 @@ namespace Dispel.CommandLine
         public static async Task Main(string[] args)
         {
             IReadOnlyList<string> logPaths = Array.Empty<string>();
-            var formatName = "html";
+            var formatName = "site";
             var quiet = false;
-            var multi = false;
+            var single = false;
 
             ArgumentSyntax.Parse(args, syntax =>
             {
-                syntax.DefineOption("o|outputFormat", ref formatName, "output format - (html|text|wiki|all)");
+                syntax.DefineOption("o|outputFormat", ref formatName, "output format - (page|site|text|wiki|all)");
                 syntax.DefineOption("q|quiet", ref quiet, "suppress output");
-                syntax.DefineOption("m|multi-session", ref multi, "generate multiple outputs");
+                syntax.DefineOption("s|single-file", ref single, "generate combined single-file output");
                 syntax.DefineParameterList("logs", ref logPaths, "log files to convert");
             });
 
@@ -43,19 +43,19 @@ namespace Dispel.CommandLine
 
             if (formatName == "all")
             {
-                foreach (var format in new[] { OutputFormat.HTML, OutputFormat.Text, OutputFormat.Wiki })
+                foreach (var format in new[] { OutputFormat.WebPage, OutputFormat.Text, OutputFormat.Wiki })
                 {
-                    await ConvertAsync(format, logPaths, quiet, multi);
+                    await ConvertAsync(format, logPaths, quiet, single);
                 }
             }
             else
             {
                 var format = Formats.Parse(formatName);
-                await ConvertAsync(format, logPaths, quiet, multi);
+                await ConvertAsync(format, logPaths, quiet, single);
             }
         }
 
-        private static async Task ConvertAsync(OutputFormat format, IReadOnlyList<string> logPaths, bool quiet, bool multi)
+        private static async Task ConvertAsync(OutputFormat format, IReadOnlyList<string> logPaths, bool quiet, bool single)
         {
             foreach (var logPath in logPaths)
             {
@@ -68,17 +68,15 @@ namespace Dispel.CommandLine
                 var inputFile = Path.GetFullPath(logPath);
                 if (!quiet) Console.WriteLine($"Processing {inputFile}...");
 
-                if (multi)
+                if (!single)
                 {
                     using (var inputStream = File.OpenRead(inputFile))
                     {
-                        var logs = await Engine.ConvertMultisessionAsync(inputStream, format);
-                        int idx = 0;
+                        var logs = await Engine.ConvertAsync(inputStream, format);
                         foreach (var log in logs)
                         {
-                            var outputFile = $"{Path.GetFileNameWithoutExtension(inputFile)}-{idx++}.{Formats.GetFileExtension(format)}";
-                            await File.WriteAllTextAsync(outputFile, log);
-                            if (!quiet) Console.WriteLine($"Created {outputFile}.");
+                            await File.WriteAllTextAsync(log.Filename, log.Content);
+                            if (!quiet) Console.WriteLine($"Created {log.Filename}.");
                         }
                     }
                 }
@@ -89,7 +87,7 @@ namespace Dispel.CommandLine
                     {
                         using (var outputStream = File.OpenWrite(outputFile))
                         {
-                            await Engine.ConvertAsync(inputStream, outputStream, format);
+                            await Engine.ConvertSingleAsync(inputStream, outputStream, format);
                         }
                     }
                     if (!quiet) Console.WriteLine($"Created {outputFile}.");

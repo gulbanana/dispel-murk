@@ -7,11 +7,19 @@ namespace Dispel
     /// <summary>output special HTML for the Obsidian Portal wiki</summary>
     static class WikiGenerator
     {
-        public static string Format(Log log)
+        public static OutputFile[] Format(Log log)
         {
-            var lines = log.Sessions.SelectMany(s => s.Body).ToArray();
-            var maxUsername = lines.Select(line => line.Username.Length).Max();
-            return string.Join("", lines.Select(l => Format(l, maxUsername)));
+            return log.Sessions.Select(Format).ToArray();
+        }
+
+        public static OutputFile Format(Session session, int index)
+        {
+            var maxUsername = session.Body.Select(line => line.Username.Length).Max();
+
+            return new OutputFile(
+                $"{session.Ident}-{index}.wiki.html",
+                string.Join("", session.Body.Select(l => Format(l, maxUsername)))
+            );
         }
 
         public static string Format(Line line, int maxUsername)

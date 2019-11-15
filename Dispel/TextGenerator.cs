@@ -4,12 +4,20 @@ using System.Linq;
 
 namespace Dispel
 {
-    /// <summary>output a plaintext log file</summary>
+    /// <summary>output plaintext log files</summary>
     static class TextGenerator
     {
-        public static string Format(Log log)
+        public static OutputFile[] Format(Log log)
         {
-            return string.Join("", log.Sessions.SelectMany(s => s.Body).Select(Format));
+            return log.Sessions.Select(Format).ToArray();
+        }
+
+        public static OutputFile Format(Session session, int index)
+        {
+            return new OutputFile(
+                $"{session.Ident}-{index}.txt",
+                string.Join("", session.Body.Select(Format))
+            );
         }
 
         public static string Format(Line header)

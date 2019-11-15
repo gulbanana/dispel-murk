@@ -1,8 +1,5 @@
 ﻿using Dispel.AST;
-using Dispel.Parse;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Dispel
 {
@@ -15,7 +12,10 @@ namespace Dispel
                 case OutputFormat.Text:
                     return "txt";
 
-                case OutputFormat.HTML:
+                case OutputFormat.WebPage:
+                    return "html";
+
+                case OutputFormat.WebSite:
                     return "html";
 
                 case OutputFormat.Wiki:
@@ -26,15 +26,18 @@ namespace Dispel
             }
         }
 
-        public static Func<Log, string> GetGenerator(OutputFormat format)
+        public static Func<Log, OutputFile[]> GetGenerator(OutputFormat format)
         {
             switch (format)
             {
                 case OutputFormat.Text:
                     return TextGenerator.Format;
 
-                case OutputFormat.HTML:
-                    return PageGenerator.Format;
+                case OutputFormat.WebPage:
+                    return WebGenerator.FormatPage;
+
+                case OutputFormat.WebSite:
+                    return WebGenerator.FormatSite;
 
                 case OutputFormat.Wiki:
                     return WikiGenerator.Format;
@@ -51,8 +54,11 @@ namespace Dispel
                 case "text":
                     return OutputFormat.Text;
 
-                case "html":
-                    return OutputFormat.HTML;
+                case "page":
+                    return OutputFormat.WebPage;
+
+                case "site":
+                    return OutputFormat.WebSite;
 
                 case "wiki":
                     return OutputFormat.Wiki;
@@ -62,6 +68,6 @@ namespace Dispel
             }
         }
 
-        public static readonly string[] Names = new[] { "text", "html", "wiki" };
+        public static readonly string[] Names = new[] { "text", "page", "site", "wiki" };
     }
 }

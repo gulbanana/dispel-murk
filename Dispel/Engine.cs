@@ -9,13 +9,15 @@ namespace Dispel
 {
     public class Engine
     {
-        public static async Task ConvertAsync(Stream input, Stream output, OutputFormat format)
+        // XXX only works for single-file formats
+        public static async Task ConvertSingleAsync(Stream input, Stream output, OutputFormat format)
         {
             var generator = Formats.GetGenerator(format);
             var engine = new Engine();
             var sessions = await engine.GetSessions(input);
             var log = new Log(sessions);
-            var outputText = generator(log);
+            var outputFiles = generator(log);
+            var outputText = outputFiles.Single().Content;
 
             using (var writer = new StreamWriter(output))
             {
@@ -24,12 +26,13 @@ namespace Dispel
             }
         }
 
-        public static async Task<List<string>> ConvertMultisessionAsync(Stream input, OutputFormat format)
+        public static async Task<OutputFile[]> ConvertAsync(Stream input, OutputFormat format)
         {
             var generator = Formats.GetGenerator(format);
             var engine = new Engine();
             var sessions = await engine.GetSessions(input);
-            return sessions.Select(s => new Log(new[]{s})).Select(generator).ToList();
+            var log = new Log(sessions);
+            return generator(log);
         }
 
         private readonly List<Session> sessions;
