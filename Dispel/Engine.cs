@@ -115,7 +115,7 @@ namespace Dispel
             if (!string.IsNullOrEmpty(result.Remainder)) throw new Exception("parse error: junk after log" + result.Expected + Environment.NewLine + result.Remainder);
 
             var username = result.Tree.Children[1].Text;
-            if (username != "*") // control node
+            if (username != "*" && username != "->") // control node, private message
             {
                 var runNodes = result.Tree.Children[2].Children;
 

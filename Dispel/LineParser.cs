@@ -23,7 +23,11 @@ namespace Dispel
             Optional(Skip(@"\x03?\d\d?")), // occasionally you get a malformed color reset without the ^K
             Timestamp, 
             Skip(@"\s"), 
-            Any(Username, Term(@"\*")), 
+            Any(
+                Username, 
+                Term(@"\*"), 
+                Term(@"->")
+            ), 
             Skip(@"\s"), 
             AttributedText);
     }

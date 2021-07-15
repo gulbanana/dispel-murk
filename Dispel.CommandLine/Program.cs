@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.CommandLine;
+using System.CommandLine.Invocation;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,48 +12,48 @@ namespace Dispel.CommandLine
     {
         public static async Task Main(string[] args)
         {
-            IReadOnlyList<string> logPaths = Array.Empty<string>();
-            var formatName = "site";
-            var quiet = false;
-            var single = false;
-
-            ArgumentSyntax.Parse(args, syntax =>
+            var command = new RootCommand
+            {                
+                new Option<bool>(new[]{"q", "quiet"}, "suppress output"),
+                new Option<bool>(new[]{"s", "single-file"}, "generate combined single-file output"),
+                new Option<string>(new[]{"o", "output-format"}, () => "site", "(page|site|text|wiki|all)"),
+                new Argument<string[]>("logs", "log files to convert") { Arity = ArgumentArity.OneOrMore }
+            };
+            
+            command.Handler = CommandHandler.Create<bool, bool, string, string[]>(async (quiet, single, outputFormat, logs) =>
             {
-                syntax.DefineOption("o|outputFormat", ref formatName, "output format - (page|site|text|wiki|all)");
-                syntax.DefineOption("q|quiet", ref quiet, "suppress output");
-                syntax.DefineOption("s|single-file", ref single, "generate combined single-file output");
-                syntax.DefineParameterList("logs", ref logPaths, "log files to convert");
+                if (!logs.Any())
+                {
+                    logs = Directory.EnumerateFiles(".", "*.log").ToArray();
+                }
+
+                if (!logs.Any())
+                {
+                    if (!quiet) Console.WriteLine("No logs to process!");
+                    return;
+                }
+
+                if (outputFormat != "all" && !Formats.Names.Contains(outputFormat))
+                {
+                    if (!quiet) Console.WriteLine($"Unrecognised format {outputFormat}!");
+                    return;
+                }
+
+                if (outputFormat == "all")
+                {
+                    foreach (var format in new[] { OutputFormat.WebPage, OutputFormat.Text, OutputFormat.Wiki })
+                    {
+                        await ConvertAsync(format, logs, quiet, single);
+                    }
+                }
+                else
+                {
+                    var format = Formats.Parse(outputFormat);
+                    await ConvertAsync(format, logs, quiet, single);
+                }
             });
 
-            if (!logPaths.Any())
-            {
-                logPaths = Directory.EnumerateFiles(".", "*.log").ToArray();
-            }
-
-            if (!logPaths.Any())
-            {
-                if (!quiet) Console.WriteLine("No logs to process!");
-                return;
-            }
-
-            if (formatName != "all" && !Formats.Names.Contains(formatName))
-            {
-                if (!quiet) Console.WriteLine($"Unrecognised format {formatName}!");
-                return;
-            }
-
-            if (formatName == "all")
-            {
-                foreach (var format in new[] { OutputFormat.WebPage, OutputFormat.Text, OutputFormat.Wiki })
-                {
-                    await ConvertAsync(format, logPaths, quiet, single);
-                }
-            }
-            else
-            {
-                var format = Formats.Parse(formatName);
-                await ConvertAsync(format, logPaths, quiet, single);
-            }
+            await command.InvokeAsync(args);
         }
 
         private static async Task ConvertAsync(OutputFormat format, IReadOnlyList<string> logPaths, bool quiet, bool single)
