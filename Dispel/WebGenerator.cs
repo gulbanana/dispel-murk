@@ -1,5 +1,6 @@
 ﻿using Dispel.AST;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -138,9 +139,30 @@ namespace Dispel
 
         private string CreateIndex(Log log)
         {
-            var title = options.Title ?? log.Sessions.First().Ident;
-            var links = log.Sessions
-                .Select((s, ix) => {
+            var mainTitle = options.Title ?? log.Sessions.First().Ident;
+            string title(int ix)
+            {
+                foreach (var kvp in options.Groups)
+                {
+                    if (ix >= kvp.Value[0] && (kvp.Value.Length == 1 || ix <= kvp.Value[1]))
+                    {
+                        return kvp.Key;
+                    }
+                }
+
+                return mainTitle;
+            }
+
+            var groups = log.Sessions.Select((s, ix) => (s, ix)).GroupBy(t => title(t.ix));          
+
+            return $@"{prefix}{stylesheet}{string.Join(Environment.NewLine, groups.Select(g => CreateIndex(g.Key, g)))}";
+        }
+
+        private string CreateIndex(string title, IEnumerable<(Session, int)> sessions)
+        {
+            var links = sessions
+                .Select(t => {
+                    var (s, ix) = t;
                     var name = $"{s.Ident}-{ix}.html";
                     var url = Uri.EscapeDataString(name);
                     var date = s.StartTime;
@@ -152,15 +174,17 @@ namespace Dispel
 
                     return $@"<a href=""{url}"">{name}</a>
     <span>{date}</span>
-    <span>{string.Join(", ", participants)}</span>";});
+    <span>{string.Join(", ", participants)}</span>";
+            });
 
-            return $@"{prefix}{stylesheet}<h2>{title}</h2>
+            return $@"<h2>{title}</h2>
 <div class=""session-grid"">
     <span class=""th"">Session</span>
     <span class=""th"">Date</span>
     <span class=""th"">Participants</span>
     {string.Join("\n\t", links)}
-</div>";
+</div>
+";
         }
     }
 }
