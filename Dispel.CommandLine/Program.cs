@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Configuration;
+using System;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
@@ -58,6 +59,13 @@ namespace Dispel.CommandLine
 
         private static async Task ConvertAsync(OutputFormat format, IReadOnlyList<string> logPaths, bool quiet, bool single)
         {
+            var config = new ConfigurationBuilder()
+                .SetBasePath(Environment.CurrentDirectory)
+                .AddJsonFile("config.json")
+                .Build();
+
+            var options = config.Get<DispelOptions>();
+
             foreach (var logPath in logPaths)
             {
                 if (!File.Exists(logPath))
@@ -69,11 +77,12 @@ namespace Dispel.CommandLine
                 var inputFile = Path.GetFullPath(logPath);
                 if (!quiet) Console.WriteLine($"Processing {inputFile}...");
 
+                var engine = new Engine(options);
                 if (!single)
                 {
                     using (var inputStream = File.OpenRead(inputFile))
                     {
-                        var logs = await Engine.ConvertAsync(inputStream, format);
+                        var logs = await engine.ConvertAsync(inputStream, format);
                         foreach (var log in logs)
                         {
                             await File.WriteAllTextAsync(log.Filename, log.Content);
@@ -88,7 +97,7 @@ namespace Dispel.CommandLine
                     {
                         using (var outputStream = File.OpenWrite(outputFile))
                         {
-                            await Engine.ConvertSingleAsync(inputStream, outputStream, format);
+                            await engine.ConvertSingleAsync(inputStream, outputStream, format);
                         }
                     }
                     if (!quiet) Console.WriteLine($"Created {outputFile}.");

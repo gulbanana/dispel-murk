@@ -7,17 +7,23 @@ using System.Text;
 namespace Dispel
 {
     /// <summary>output HTML</summary>
-    static class WebGenerator
+    class WebGenerator
     {
-        private const string prefix = @"<!DOCTYPE html>
-<meta charset=""utf-8"">
-<title>mIRC Logfile</title>
-";
-
         private const string stylesheet = @"<link href=""style.css"" rel=""stylesheet"">
 ";
+        private readonly DispelOptions options;
+        private readonly string prefix;
 
-        public static OutputFile[] FormatSite(Log log)
+        public WebGenerator(DispelOptions options)
+        {
+            this.options = options;
+            this.prefix = @$"<!DOCTYPE html>
+<meta charset=""utf-8"">
+<title>{options.Title ?? "mIRC Logfile"}</title>
+";
+        }
+
+        public OutputFile[] FormatSite(Log log)
         {
             return log.Sessions.Select(Format).Append(new OutputFile(
                 "style.css",
@@ -28,17 +34,7 @@ namespace Dispel
             )).ToArray();
         }
 
-        public static OutputFile Format(Session session, int index)
-        {
-            var bodyContent = string.Join("", session.Body.Select(Format));
-
-            return new OutputFile(
-                $"{session.Ident}-{index}.html",
-                prefix + stylesheet + bodyContent
-            );
-        }
-
-        public static OutputFile[] FormatPage(Log log)
+        public OutputFile[] FormatPage(Log log)
         {
             var firstIdent = log.Sessions.First().Ident;
             var bodyContent = string.Join("", log.Sessions.SelectMany(s => s.Body).Select(Format));
@@ -55,12 +51,24 @@ namespace Dispel
             };
         }
 
-        public static string Format(Line header)
+        private OutputFile Format(Session session, int index)
         {
-            return $"<p class='line'><span class='timestamp'>{header.Timestamp}</span> <span class='user'>&lt;{header.Username}&gt;</span> {Format(header.Message)}</p>{Environment.NewLine}";
+            var bodyContent = "<div class='log-grid'>" + Environment.NewLine
+                            + string.Join(Environment.NewLine, session.Body.Select(Format)) + Environment.NewLine
+                            + "</div>" + Environment.NewLine;
+
+            return new OutputFile(
+                $"{session.Ident}-{index}.html",
+                prefix + stylesheet + bodyContent
+            );
         }
 
-        public static string Format(Message body)
+        private static string Format(Line header)
+        {
+            return $"<span class='timestamp'>{header.Timestamp}</span> <span class='user'>&lt;{header.Username}&gt;</span> <span>{Format(header.Message)}</span>";
+        }
+
+        private static string Format(Message body)
         {
             var isBold = false;
             var isItalic = false;
@@ -128,9 +136,9 @@ namespace Dispel
             return new StreamReader(typeof(WebGenerator).Assembly.GetManifestResourceStream("Dispel.style.css")).ReadToEnd();
         }
 
-        private static string CreateIndex(Log log)
+        private string CreateIndex(Log log)
         {
-            var title = log.Sessions.First().Ident;
+            var title = options.Title ?? log.Sessions.First().Ident;
             var links = log.Sessions
                 .Select((s, ix) => {
                     var name = $"{s.Ident}-{ix}.html";
@@ -139,7 +147,7 @@ namespace Dispel
                     var participants = s.Body
                         .Select(l => l.Username)
                         .Distinct()
-                        .OrderBy(u => !u.Equals("Crion", StringComparison.OrdinalIgnoreCase))
+                        .OrderBy(u => !u.Equals(options.GM ?? "banana", StringComparison.OrdinalIgnoreCase))
                         .ThenBy(u => u);
 
                     return $@"<a href=""{url}"">{name}</a>

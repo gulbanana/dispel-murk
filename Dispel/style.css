@@ -28,17 +28,23 @@ span.u { text-decoration: underline; }
 span.i { font-style: italic; }
 
 /* mIRC log elements */
-span.user {
-    font-weight: bold;
-}
-
 span.timestamp {
     color: rgb(128, 128, 128);
+}
+
+span.user {
+    font-weight: bold;
 }
 
 p.line {
     margin: 0;
     padding: 0;
+}
+
+.log-grid {
+    display: grid;
+    grid-template-columns: auto auto 1fr;
+    grid-column-gap: 0.5em;
 }
 
 /* index page elements */

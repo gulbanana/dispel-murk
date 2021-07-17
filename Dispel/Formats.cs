@@ -26,7 +26,7 @@ namespace Dispel
             }
         }
 
-        public static Func<Log, OutputFile[]> GetGenerator(OutputFormat format)
+        public static Func<Log, OutputFile[]> GetGenerator(OutputFormat format, DispelOptions options)
         {
             switch (format)
             {
@@ -34,10 +34,10 @@ namespace Dispel
                     return TextGenerator.Format;
 
                 case OutputFormat.WebPage:
-                    return WebGenerator.FormatPage;
+                    return new WebGenerator(options).FormatPage;
 
                 case OutputFormat.WebSite:
-                    return WebGenerator.FormatSite;
+                    return new WebGenerator(options).FormatSite;
 
                 case OutputFormat.Wiki:
                     return WikiGenerator.Format;

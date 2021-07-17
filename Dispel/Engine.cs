@@ -9,12 +9,27 @@ namespace Dispel
 {
     public class Engine
     {
-        // XXX only works for single-file formats
-        public static async Task ConvertSingleAsync(Stream input, Stream output, OutputFormat format)
+        private readonly List<Session> sessions;
+        private readonly List<Line> sessionLines;
+        private readonly DispelOptions options;
+        private string sessionIdent;
+        private string sessionStart;
+        private string sessionEnd;
+        private bool inSession;
+
+        public Engine(DispelOptions options)
         {
-            var generator = Formats.GetGenerator(format);
-            var engine = new Engine();
-            var sessions = await engine.GetSessions(input);
+            sessions = new List<Session>();
+            sessionLines = new List<Line>();
+            inSession = true;
+            this.options = options;
+        }
+
+        // XXX only works for single-file formats
+        public async Task ConvertSingleAsync(Stream input, Stream output, OutputFormat format)
+        {
+            var generator = Formats.GetGenerator(format, options);
+            var sessions = await GetSessions(input);
             var log = new Log(sessions);
             var outputFiles = generator(log);
             var outputText = outputFiles.Single().Content;
@@ -26,27 +41,12 @@ namespace Dispel
             }
         }
 
-        public static async Task<OutputFile[]> ConvertAsync(Stream input, OutputFormat format)
+        public async Task<OutputFile[]> ConvertAsync(Stream input, OutputFormat format)
         {
-            var generator = Formats.GetGenerator(format);
-            var engine = new Engine();
-            var sessions = await engine.GetSessions(input);
+            var generator = Formats.GetGenerator(format, options);
+            var sessions = await GetSessions(input);
             var log = new Log(sessions);
             return generator(log);
-        }
-
-        private readonly List<Session> sessions;
-        private readonly List<Line> sessionLines;
-        private string sessionIdent;
-        private string sessionStart;
-        private string sessionEnd;
-        private bool inSession;
-
-        private Engine()
-        {
-            sessions = new List<Session>();
-            sessionLines = new List<Line>();
-            inSession = true;
         }
 
         private void FlushSession()
@@ -144,11 +144,23 @@ namespace Dispel
 
                 var ast = new Line(
                     result.Tree.Children[0].Text,
-                    username,
+                    GetAlias(username),
                     new Message(runs)
                 );
 
                 sessionLines.Add(ast);
+            }
+        }
+
+        private string GetAlias(string username)
+        {
+            if (options.Aliases != null && options.Aliases.ContainsKey(username))
+            {
+                return options.Aliases[username];
+            }
+            else
+            {
+                return username;
             }
         }
     }
