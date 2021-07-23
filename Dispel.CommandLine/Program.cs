@@ -80,7 +80,7 @@ namespace Dispel.CommandLine
                 var engine = new Engine(options);
                 if (!single)
                 {
-                    using (var inputStream = File.OpenRead(inputFile))
+                    using (var inputStream = File.Open(inputFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                     {
                         var logs = await engine.ConvertAsync(inputStream, format);
                         foreach (var log in logs)
@@ -93,7 +93,7 @@ namespace Dispel.CommandLine
                 else
                 {
                     var outputFile = Path.ChangeExtension(inputFile, Formats.GetFileExtension(format));
-                    using (var inputStream = File.OpenRead(inputFile))
+                    using (var inputStream = File.Open(inputFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                     {
                         using (var outputStream = File.OpenWrite(outputFile))
                         {
