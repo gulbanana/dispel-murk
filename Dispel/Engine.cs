@@ -57,7 +57,7 @@ namespace Dispel
             blankLines = 0;
             if (sessionLines.Count > 0)
             {
-                sessions.Add(new Session(sessionIdent ?? previousSessionIdent, sessionStart, sessionEnd, sessionLines));
+                sessions.Add(new Session(sessionIdent ?? previousSessionIdent, sessionStart ?? sessionTime, sessionEnd, sessionLines));
                 sessionLines.Clear();
             }
 
