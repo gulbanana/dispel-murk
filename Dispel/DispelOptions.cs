@@ -10,5 +10,6 @@ namespace Dispel
         public Dictionary<string, int[]> Groups { get; set; }
         public int[] Vignettes { get; set; }
         public int BlankLinesThreshhold { get; set; } = 3;
+        public string[] Ignored { get; set; } = new string[] { "*", "->" };  // control node, private message
     }
 }

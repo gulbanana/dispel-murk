@@ -1,4 +1,4 @@
-using Dispel.AST;
+﻿using Dispel.AST;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -125,7 +125,7 @@ namespace Dispel
             if (!string.IsNullOrEmpty(result.Remainder)) throw new Exception("parse error: junk after log" + result.Expected + Environment.NewLine + result.Remainder);
 
             var username = result.Tree.Children[1].Text;
-            if (username != "*" && username != "->") // control node, private message
+            if (!options.Ignored.Contains(username))
             {
                 var runNodes = result.Tree.Children[2].Children;
 
@@ -177,7 +177,7 @@ namespace Dispel
                     }
                     blankLines = 0;
                 }
-                sessionLines.Add(ast);
+                sessionLines.Add(ast);             
             }
         }
 
