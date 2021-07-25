@@ -101,7 +101,7 @@ namespace Dispel
                                 inSession = false;
                                 break;
 
-                            case "Time":
+                            case "Time:":
                                 sessionTime = line.Substring(14);
                                 break;
                         }
