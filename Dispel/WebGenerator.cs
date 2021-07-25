@@ -142,7 +142,7 @@ namespace Dispel
             var mainTitle = options.Title ?? log.Sessions.First().Ident;
             string title(int ix)
             {
-                foreach (var kvp in options.Groups)
+                foreach (var kvp in options.Groups ?? Enumerable.Empty<KeyValuePair<string, int[]>>())
                 {
                     if (ix >= kvp.Value[0] && (kvp.Value.Length == 1 || ix <= kvp.Value[1]))
                     {
