@@ -9,5 +9,6 @@ namespace Dispel
         public Dictionary<string, string> Aliases { get; set; }
         public Dictionary<string, int[]> Groups { get; set; }
         public int[] Vignettes { get; set; }
+        public int BlankLinesThreshhold { get; set; } = 3;
     }
 }

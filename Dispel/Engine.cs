@@ -1,4 +1,4 @@
-﻿using Dispel.AST;
+using Dispel.AST;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,10 +12,13 @@ namespace Dispel
         private readonly List<Session> sessions;
         private readonly List<Line> sessionLines;
         private readonly DispelOptions options;
+        private string previousSessionIdent;
         private string sessionIdent;
         private string sessionStart;
         private string sessionEnd;
+        private string sessionTime;
         private bool inSession;
+        private int blankLines;
 
         public Engine(DispelOptions options)
         {
@@ -51,12 +54,14 @@ namespace Dispel
 
         private void FlushSession()
         {
+            blankLines = 0;
             if (sessionLines.Count > 0)
             {
-                sessions.Add(new Session(sessionIdent, sessionStart, sessionEnd, sessionLines));
+                sessions.Add(new Session(sessionIdent ?? previousSessionIdent, sessionStart, sessionEnd, sessionLines));
                 sessionLines.Clear();
             }
 
+            previousSessionIdent = sessionIdent;
             sessionIdent = null;
             sessionStart = null;
             sessionEnd = null;
@@ -87,12 +92,17 @@ namespace Dispel
                                 if (inSession) FlushSession();
                                 inSession = true;
                                 sessionStart = line.Substring(15);
+                                sessionTime = sessionStart;
                                 break;
 
                             case "Close":
                                 sessionEnd = line.Substring(15);
                                 FlushSession();
                                 inSession = false;
+                                break;
+
+                            case "Time":
+                                sessionTime = line.Substring(14);
                                 break;
                         }
                     }
@@ -148,6 +158,25 @@ namespace Dispel
                     new Message(runs)
                 );
 
+                if (runs.All(r => string.IsNullOrWhiteSpace(r.Text)))
+                {
+                    blankLines++;
+                }
+                else
+                {
+                    if (blankLines >= options.BlankLinesThreshhold)
+                    {
+                        sessionLines.RemoveRange(sessionLines.Count - blankLines, blankLines);
+
+                        if (sessionLines.Any())
+                        {
+                            FlushSession();
+                            sessionIdent = previousSessionIdent;
+                            sessionStart = sessionTime;
+                        }
+                    }
+                    blankLines = 0;
+                }
                 sessionLines.Add(ast);
             }
         }
