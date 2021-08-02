@@ -61,10 +61,10 @@ namespace Dispel.CommandLine
         {
             var config = new ConfigurationBuilder()
                 .SetBasePath(Environment.CurrentDirectory)
-                .AddJsonFile("config.json")
+                .AddJsonFile("config.json", optional: true)
                 .Build();
 
-            var options = config.Get<DispelOptions>();
+            var options = config.Get<DispelOptions>() ?? new DispelOptions();
 
             foreach (var logPath in logPaths)
             {

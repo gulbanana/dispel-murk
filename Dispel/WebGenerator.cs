@@ -38,7 +38,11 @@ namespace Dispel
         public OutputFile[] FormatPage(Log log)
         {
             var firstIdent = log.Sessions.First().Ident;
-            var bodyContent = string.Join("", log.Sessions.SelectMany(s => s.Body).Select(Format));
+
+            var bodyContent = "<div class='log-grid'>" + Environment.NewLine
+                            + string.Join(Environment.NewLine, log.Sessions.SelectMany(s => s.Body).Select(Format)) + Environment.NewLine
+                            + "</div>" + Environment.NewLine;
+
             var stylesheet = @"<style type=""text/css"">
 " + ReadStylesheet() + @"
 </style>

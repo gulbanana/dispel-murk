@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Dispel
@@ -78,6 +79,26 @@ namespace Dispel
                     if (line.Length == 0)
                     {
                         continue;
+                    }
+                    else if (line.StartsWith("Start of "))
+                    {
+                        var match = Regex.Match(line, "Start of (.+) buffer: (.+)");
+                        if (match.Success)
+                        {
+                            sessionIdent = match.Groups[1].Value;
+                            sessionStart = match.Groups[2].Value;
+                            sessionTime = sessionStart;
+                        }
+                    }
+                    else if (line.StartsWith("End of "))
+                    {
+                        var match = Regex.Match(line, "End of (.+) buffer: (.+)");
+                        if (match.Success)
+                        {
+                            sessionIdent = match.Groups[1].Value;
+                            sessionEnd = match.Groups[2].Value;
+                            sessionTime = sessionEnd;
+                        }
                     }
                     else if (line.StartsWith("Session "))
                     {
