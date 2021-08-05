@@ -175,10 +175,13 @@ namespace Dispel
                         .Distinct()
                         .OrderBy(u => !u.Equals(options.GM ?? "banana", StringComparison.OrdinalIgnoreCase))
                         .ThenBy(u => u);
+                    
+                    var notes = options.Notes != null && options.Notes.ContainsKey(ix.ToString()) ? options.Notes[ix.ToString()] : string.Empty;
 
                     return $@"<a href=""{url}"">{name}</a>
     <span>{date}</span>
-    <span>{string.Join(", ", participants)}</span>";
+    <span>{string.Join(", ", participants)}</span>
+    <span class=""notes"">{notes}</span>";
             });
 
             return $@"<h2>{title}</h2>
@@ -186,6 +189,7 @@ namespace Dispel
     <span class=""th"">Session</span>
     <span class=""th"">Date</span>
     <span class=""th"">Participants</span>
+    <span class=""th"">Notes</span>
     {string.Join("\n\t", links)}
 </div>
 ";

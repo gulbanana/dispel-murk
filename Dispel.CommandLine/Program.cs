@@ -85,8 +85,12 @@ namespace Dispel.CommandLine
                         var logs = await engine.ConvertAsync(inputStream, format);
                         foreach (var log in logs)
                         {
-                            await File.WriteAllTextAsync(log.Filename, log.Content);
-                            if (!quiet) Console.WriteLine($"Created {log.Filename}.");
+                            var existingContent = File.Exists(log.Filename) ? await File.ReadAllTextAsync(log.Filename) : null;
+                            if (!log.Content.Equals(existingContent))
+                            {
+                                await File.WriteAllTextAsync(log.Filename, log.Content);
+                                if (!quiet) Console.WriteLine($"{(existingContent == null ? "Created" : "Updated")} {log.Filename}.");
+                            }
                         }
                     }
                 }

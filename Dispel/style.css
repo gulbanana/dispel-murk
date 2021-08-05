@@ -58,10 +58,14 @@ p.line {
 
 .session-grid {
     display: grid;
-    grid-template-columns: auto auto 1fr;
+    grid-template-columns: auto auto auto 1fr;
     grid-column-gap: 2em;
 }
 
 .th {
     font-weight: bold;
+}
+
+.notes {
+    font-style: italic;
 }
