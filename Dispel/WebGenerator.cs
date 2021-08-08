@@ -70,7 +70,14 @@ namespace Dispel
 
         private static string Format(Line header)
         {
-            return $"<span class='timestamp'>{header.Timestamp}</span> <span class='user'>&lt;{header.Username}&gt;</span> <span>{Format(header.Message)}</span>";
+            if (header.Media == null)
+            {
+                return $"<span class='timestamp'>{header.Timestamp}</span> <span class='user'>&lt;{header.Username}&gt;</span> <span>{Format(header.Message)}</span>";
+            }
+            else
+            {
+                return $"<span class='timestamp'></span> <span class='user'></span> <img src=\"{header.Media}\">";
+            }
         }
 
         private static string Format(Message body)
@@ -172,6 +179,7 @@ namespace Dispel
                     var date = s.StartTime;
                     var participants = s.Body
                         .Select(l => l.Username)
+                        .Where(u => u != null)
                         .Distinct()
                         .OrderBy(u => !u.Equals(options.GM ?? "banana", StringComparison.OrdinalIgnoreCase))
                         .ThenBy(u => u);

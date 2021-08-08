@@ -100,36 +100,28 @@ namespace Dispel
                             sessionTime = sessionEnd;
                         }
                     }
-                    else if (line.StartsWith("Session "))
-                    {
-                        var sessionCommand = line.Substring(8, 5);
-                        switch (sessionCommand)
-                        {
-                            case "Ident":
-                                sessionIdent = line.Substring(15);
-                                break;
-
-                            case "Start":
-                                if (inSession) FlushSession();
-                                inSession = true;
-                                sessionStart = line.Substring(15);
-                                sessionTime = sessionStart;
-                                break;
-
-                            case "Close":
-                                sessionEnd = line.Substring(15);
-                                FlushSession();
-                                inSession = false;
-                                break;
-
-                            case "Time:":
-                                sessionTime = line.Substring(14);
-                                break;
-                        }
-                    }
                     else
                     {
-                        ProcessMessage(line);
+                        var parser = Parse.Combinators.Any(LineParser.Line, DirectiveParser.MircDirective, DirectiveParser.DMDirective);
+                        var result = parser(line);
+
+                        if (!result.IsSuccess) throw new Exception("parse error: expected " + result.Expected + Environment.NewLine + result.Remainder);
+                        if (!string.IsNullOrEmpty(result.Remainder)) throw new Exception("parse error: junk after log" + result.Expected + Environment.NewLine + result.Remainder);
+
+                        switch(result.Tag)
+                        {
+                            case 1:
+                                ProcessMessage(result.Tree);
+                                break;
+
+                            case 2:
+                                ProcessSessionDirective(result.Tree);
+                                break;
+
+                            case 3:
+                                ProcessEngineDirective(result.Tree);
+                                break;
+                        }
                     }
                 }
 
@@ -139,16 +131,54 @@ namespace Dispel
             }
         }
 
-        private void ProcessMessage(string line)
+        private void ProcessEngineDirective(Parse.Node tree)
         {
-            var result = LineParser.Line(line);
-            if (!result.IsSuccess) throw new Exception("parse error: expected " + result.Expected + Environment.NewLine + result.Remainder);
-            if (!string.IsNullOrEmpty(result.Remainder)) throw new Exception("parse error: junk after log" + result.Expected + Environment.NewLine + result.Remainder);
+            var command = tree.Children[0].Text;
+            var args = tree.Children[1].Text;
+            switch (command)
+            {
+                case "img":
+                    sessionLines.Add(new Line(args));
+                    break;
+            }
+        }
 
-            var username = result.Tree.Children[1].Text;
+        private void ProcessSessionDirective(Parse.Node tree)
+        {
+            var command = tree.Children[0].Text;
+            var args = tree.Children[1].Text;
+            switch (command)
+            {
+                case "Ident":
+                    sessionIdent = args;
+                    break;
+
+                case "Start":
+                    if (inSession) FlushSession();
+                    inSession = true;
+                    sessionStart = args;
+                    sessionTime = sessionStart;
+                    break;
+
+                case "Close":
+                    sessionEnd = args;
+                    FlushSession();
+                    inSession = false;
+                    break;
+
+                case "Time":
+                    sessionTime = args;
+                    break;
+            }
+
+        }
+
+        private void ProcessMessage(Parse.Node tree)
+        {
+            var username = tree.Children[1].Text;
             if (!options.Ignored.Contains(username))
             {
-                var runNodes = result.Tree.Children[2].Children;
+                var runNodes = tree.Children[2].Children;
 
                 var runs = new Run[runNodes.Length];
                 for (var i = 0; i < runs.Length; i++)
@@ -174,7 +204,7 @@ namespace Dispel
                 }
 
                 var ast = new Line(
-                    result.Tree.Children[0].Text,
+                    tree.Children[0].Text,
                     GetAlias(username),
                     new Message(runs)
                 );

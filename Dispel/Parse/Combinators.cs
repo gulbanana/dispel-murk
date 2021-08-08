@@ -151,13 +151,18 @@ namespace Dispel.Parse
             {
                 ParseResult r;
                 var failures = new List<string>();
-                foreach (var p in parsers)
+                for (var i = 0; i < parsers.Length; i++ )
                 {
+                    var p = parsers[i];
                     r = p(text);
                     if (r.IsSuccess)
-                        return r;
+                    {
+                        return ParseResult.Tagged(r.Tree, r.Remainder, i+1);
+                    }
                     else
+                    {
                         failures.Add(r.Expected);
+                    }
                 }
 
                 return ParseResult.Failure(text, $"ANY OF ({string.Join(",", failures)})");
@@ -170,9 +175,13 @@ namespace Dispel.Parse
             {
                 var r = p(text);
                 if (!r.IsSuccess)
+                {
                     return r;
+                }
                 else
+                {
                     return ParseResult.None(r.Remainder);
+                }
             };
         }
 
