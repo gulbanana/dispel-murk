@@ -18,7 +18,7 @@ namespace Dispel.CommandLine
                 new Option<bool>(new[]{"q", "quiet"}, "suppress output"),
                 new Option<bool>(new[]{"s", "single-file"}, "generate combined single-file output"),
                 new Option<string>(new[]{"o", "output-format"}, () => "site", "(page|site|text|wiki|all)"),
-                new Argument<string[]>("logs", "log files to convert") { Arity = ArgumentArity.OneOrMore }
+                new Argument<string[]>("logs", "log files to convert") { Arity = ArgumentArity.ZeroOrMore }
             };
             
             command.Handler = CommandHandler.Create<bool, bool, string, string[]>(async (quiet, single, outputFormat, logs) =>
