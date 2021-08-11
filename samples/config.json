@@ -1,0 +1,28 @@
+// all config elements are optional. it's a good idea to remove the ones you aren't overriding
+{
+    // number of no-text lines that trigger a session split
+    "BlankLinesThreshhold": 3,
+    // usernames and directives to ignore
+    "Ignored": [
+        "*", 
+        "->"
+    ],
+    // this username will be sorted before others
+    "GM": "banana",
+    // consolidate multiple usernames used by the same person
+    "Aliases": {
+        "gulbanana": "banana",
+        "banana_": "banana"
+    },
+    // set html file titles and default group name
+    "Title": "Game Title",
+    // group ranges of sessions under a different title
+    "Groups": {
+        "Prologues": [0,6]
+    },
+    // add notes or titles to individual sessions
+    "Notes": {
+        "0": "The First Session",
+        "5": "Vignette: Cool Times"
+    }
+}
