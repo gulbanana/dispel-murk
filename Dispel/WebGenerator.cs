@@ -37,7 +37,7 @@ namespace Dispel
 
         public OutputFile[] FormatPage(Log log)
         {
-            var firstIdent = log.Sessions.First().Ident;
+            var logName = Path.GetFileNameWithoutExtension(log.Filename);
 
             var bodyContent = "<div class='log-grid'>" + Environment.NewLine
                             + string.Join(Environment.NewLine, log.Sessions.SelectMany(s => s.Body).Select(Format)) + Environment.NewLine
@@ -50,7 +50,7 @@ namespace Dispel
 
             return new[] {
                 new OutputFile(
-                    $"{firstIdent}.html",
+                    $"{logName}.html",
                     prefix + stylesheet + bodyContent
                 )
             };
@@ -150,7 +150,7 @@ namespace Dispel
 
         private string CreateIndex(Log log)
         {
-            var mainTitle = options.Title ?? log.Sessions.First().Ident;
+            var mainTitle = options.Title ?? Path.GetFileNameWithoutExtension(log.Filename);
             string title(int ix)
             {
                 foreach (var kvp in options.Groups ?? Enumerable.Empty<KeyValuePair<string, int[]>>())

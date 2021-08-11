@@ -30,12 +30,9 @@ namespace Dispel
         }
 
         // XXX only works for single-file formats
-        public async Task ConvertSingleAsync(Stream input, Stream output, OutputFormat format)
+        public async Task ConvertSingleAsync(string filename, Stream input, Stream output, OutputFormat format)
         {
-            var generator = Formats.GetGenerator(format, options);
-            var sessions = await GetSessions(input);
-            var log = new Log(sessions);
-            var outputFiles = generator(log);
+            var outputFiles = await ConvertAsync(filename, input, format);
             var outputText = outputFiles.Single().Content;
 
             using (var writer = new StreamWriter(output))
@@ -45,11 +42,11 @@ namespace Dispel
             }
         }
 
-        public async Task<OutputFile[]> ConvertAsync(Stream input, OutputFormat format)
+        public async Task<OutputFile[]> ConvertAsync(string filename, Stream input, OutputFormat format)
         {
             var generator = Formats.GetGenerator(format, options);
             var sessions = await GetSessions(input);
-            var log = new Log(sessions);
+            var log = new Log(filename, sessions);
             return generator(log);
         }
 

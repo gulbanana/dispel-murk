@@ -29,7 +29,7 @@ namespace Dispel.Web.Pages
 
             using (var file = LogFile.OpenReadStream())
             {
-                await e.ConvertSingleAsync(file, Response.Body, f);
+                await e.ConvertSingleAsync(LogFile.FileName, file, Response.Body, f);
             }
 
             return new EmptyResult();

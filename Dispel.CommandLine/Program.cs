@@ -82,7 +82,7 @@ namespace Dispel.CommandLine
                 {
                     using (var inputStream = File.Open(inputFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                     {
-                        var logs = await engine.ConvertAsync(inputStream, format);
+                        var logs = await engine.ConvertAsync(Path.GetFileName(inputFile), inputStream, format);
                         foreach (var log in logs)
                         {
                             var existingContent = File.Exists(log.Filename) ? await File.ReadAllTextAsync(log.Filename) : null;
@@ -101,7 +101,7 @@ namespace Dispel.CommandLine
                     {
                         using (var outputStream = File.OpenWrite(outputFile))
                         {
-                            await engine.ConvertSingleAsync(inputStream, outputStream, format);
+                            await engine.ConvertSingleAsync(Path.GetFileName(inputFile), inputStream, outputStream, format);
                         }
                     }
                     if (!quiet) Console.WriteLine($"Created {outputFile}.");

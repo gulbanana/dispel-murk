@@ -4,10 +4,12 @@ namespace Dispel.AST
 {
     public class Log
     {
+        public readonly string Filename;
         public readonly IReadOnlyList<Session> Sessions;
 
-        public Log(IReadOnlyList<Session> sessions)
+        public Log(string filename, IReadOnlyList<Session> sessions)
         {
+            Filename = filename;
             Sessions = sessions;
         }
     }
