@@ -69,6 +69,7 @@ namespace Dispel
         { 
             using (var reader = new StreamReader(input))            
             {
+                var inServerBlock = false;
                 while (!reader.EndOfStream)
                 {
                     var line = await reader.ReadLineAsync();
@@ -76,6 +77,15 @@ namespace Dispel
                     if (line.Length == 0)
                     {
                         continue;
+                    }
+                    else if (inServerBlock)
+                    {
+                        var parser = LineParser.Server;
+                        var result = parser(line);
+                        if (result.IsSuccess)
+                        {
+                            inServerBlock = false;
+                        }
                     }
                     else if (line.StartsWith("Start of "))
                     {
@@ -99,7 +109,7 @@ namespace Dispel
                     }
                     else
                     {
-                        var parser = Parse.Combinators.Any(LineParser.Line, DirectiveParser.MircDirective, DirectiveParser.DMDirective);
+                        var parser = Parse.Combinators.Any(LineParser.Line, LineParser.Directive, LineParser.Pragma, LineParser.Server);
                         var result = parser(line);
 
                         if (!result.IsSuccess) throw new Exception("parse error: expected " + result.Expected + Environment.NewLine + result.Remainder);
@@ -117,6 +127,10 @@ namespace Dispel
 
                             case 3:
                                 ProcessEngineDirective(result.Tree);
+                                break;
+
+                            case 4:
+                                inServerBlock = true;
                                 break;
                         }
                     }

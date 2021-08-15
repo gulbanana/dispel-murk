@@ -30,5 +30,20 @@ namespace Dispel
             ), 
             Skip(@"\s"), 
             AttributedText);
+
+        public static readonly Parser Directive = Sequence(
+            Optional(Skip(Timestamp)),
+            Skip(@"Session\s"),
+            Term(@"Ident|Start|Close|Time"),
+            Skip(@":\s"),
+            Term(@".*"));
+
+        public static readonly Parser Pragma = Sequence(
+            Skip(@"\#"),
+            Term(@"\w+"),
+            Optional(Skip(@"\s")),
+            Term(@".*"));
+
+        public static readonly Parser Server = Skip(@"-");
     }
 }
