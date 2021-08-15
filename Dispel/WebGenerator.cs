@@ -26,15 +26,13 @@ namespace Dispel
 
         public OutputFile[] FormatSite(Log log)
         {
-            return log.Sessions
-                .Select((s, i) => (s, i)).Where(t => Filter(t.s))
-                .Select(t => Format(t.s, t.i)).Append(new OutputFile(
-                    "style.css",
-                    ReadStylesheet()
-                )).Append(new OutputFile(
-                    "index.html",
-                    CreateIndex(log)
-                )).ToArray();
+            return log.Sessions.Select(Format).Append(new OutputFile(
+                "style.css",
+                ReadStylesheet()
+            )).Append(new OutputFile(
+                "index.html",
+                CreateIndex(log)
+            )).ToArray();
         }
 
         public OutputFile[] FormatPage(Log log)
@@ -94,6 +92,11 @@ namespace Dispel
 
         private OutputFile Format(Session session, int index)
         {
+            if (!Filter(session))
+            {
+                return new OutputFile($"{session.Ident}-{index}.html", null);
+            }
+
             var bodyContent = "<div class='log-grid'>" + Environment.NewLine
                             + string.Join(Environment.NewLine, session.Body.Select(Format)) + Environment.NewLine
                             + "</div>" + Environment.NewLine;
