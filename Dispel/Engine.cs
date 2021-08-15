@@ -194,6 +194,15 @@ namespace Dispel
 
         private void ProcessMessage(Parse.Node tree)
         {
+            if (DateTime.TryParse(sessionTime, out var parsedSessionTime) && 
+                DateTime.TryParse(sessionStart, out var parsedSessionStart) &&
+                (parsedSessionTime - parsedSessionStart) > options.MaxLengthThreshhold)
+            {
+                FlushSession();
+                sessionIdent = previousSessionIdent;
+                sessionStart = sessionTime;
+            }
+
             var username = tree.Children[1].Text;
             if (!options.Ignored.Contains(username))
             {
