@@ -26,7 +26,7 @@ namespace Dispel
 
         public OutputFile[] FormatSite(Log log)
         {
-            return log.Sessions.Select(Format).Append(new OutputFile(
+            return log.Sessions.Where(Filter).Select(Format).Append(new OutputFile(
                 "style.css",
                 ReadStylesheet()
             )).Append(new OutputFile(
@@ -40,7 +40,7 @@ namespace Dispel
             var logName = Path.GetFileNameWithoutExtension(log.Filename);
 
             var bodyContent = "<div class='log-grid'>" + Environment.NewLine
-                            + string.Join(Environment.NewLine, log.Sessions.SelectMany(s => s.Body).Select(Format)) + Environment.NewLine
+                            + string.Join(Environment.NewLine, log.Sessions.Where(Filter).SelectMany(s => s.Body).Select(Format)) + Environment.NewLine
                             + "</div>" + Environment.NewLine;
 
             var stylesheet = @"<style type=""text/css"">
@@ -54,6 +54,40 @@ namespace Dispel
                     prefix + stylesheet + bodyContent
                 )
             };
+        }
+
+        private bool Filter(Session session)
+        {
+            if (options.Filters == null)
+            {
+                return true;
+            }
+            
+            if (options.Filters.IncludeOneOf != null && options.Filters.IncludeOneOf.Any())
+            {
+                if (session.Participants.All(u => !options.Filters.IncludeOneOf.Contains(u, StringComparer.OrdinalIgnoreCase)))
+                {
+                    if (options.Verbose)
+                    {
+                        Console.WriteLine($"IncludeOneOf: Skipping {session.Ident}");
+                    }
+                    return false;
+                }
+            }
+
+            if (options.Filters.ExcludeAllOf != null && options.Filters.ExcludeAllOf.Any())
+            {
+                if (session.Participants.Any(u => options.Filters.ExcludeAllOf.Contains(u, StringComparer.OrdinalIgnoreCase)))
+                {
+                    if (options.Verbose)
+                    {
+                        Console.WriteLine($"ExcludeAllOf: Skipping {session.Ident} due to {session.Participants.Where(u => options.Filters.ExcludeAllOf.Contains(u, StringComparer.OrdinalIgnoreCase)).First()}");
+                    }
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         private OutputFile Format(Session session, int index)

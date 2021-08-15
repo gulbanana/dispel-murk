@@ -11,5 +11,7 @@ namespace Dispel
         public Dictionary<string, string> Notes { get; set; }
         public int BlankLinesThreshhold { get; set; } = 3;
         public string[] Ignored { get; set; } = new string[] { "*", "->" };  // control node, private message
+        public bool Verbose { get; set; }
+        public FilterOptions Filters { get; set; }
     }
 }

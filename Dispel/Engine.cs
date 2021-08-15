@@ -54,8 +54,16 @@ namespace Dispel
         {
             blankLines = 0;
             if (sessionLines.Count > 0)
-            {
-                sessions.Add(new Session(sessionIdent ?? previousSessionIdent, sessionStart ?? sessionTime, sessionEnd, sessionLines));
+            {                
+                var participants = sessionLines
+                    .Select(l => l.Username)
+                    .Where(u => u != null)
+                    .Distinct()
+                    .OrderBy(u => !u.Equals(options.GM ?? "banana", StringComparison.OrdinalIgnoreCase))
+                    .ThenBy(u => u);
+
+                sessions.Add(new Session(sessionIdent ?? previousSessionIdent, sessionStart ?? sessionTime, sessionEnd, sessionLines, participants));
+                
                 sessionLines.Clear();
             }
 

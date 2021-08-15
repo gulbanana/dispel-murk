@@ -11,8 +11,9 @@ namespace Dispel.AST
         public readonly Line[] Body;
         public readonly string StartTime;
         public readonly string EndTime;
+        public readonly string[] Participants;
 
-        public Session(string ident, string startTime, string endTime, IEnumerable<Line> body)
+        public Session(string ident, string startTime, string endTime, IEnumerable<Line> body, IEnumerable<string> participants)
         {
             Ident = ident;
             Body = body.ToArray();
@@ -34,6 +35,8 @@ namespace Dispel.AST
             {
                 EndTime = endTime;
             }
+
+            Participants = participants.ToArray();
         }
     }
 }
