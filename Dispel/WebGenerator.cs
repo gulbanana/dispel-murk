@@ -203,7 +203,7 @@ namespace Dispel
                 return mainTitle;
             }
 
-            var groups = log.Sessions.Where(Filter).Select((s, ix) => (s, ix)).GroupBy(t => title(t.ix));          
+            var groups = log.Sessions.Select((s, ix) => (s, ix)).Where(t => Filter(t.s)).GroupBy(t => title(t.ix));          
 
             return $@"{prefix}{stylesheet}{string.Join(Environment.NewLine, groups.Select(g => CreateIndex(g.Key, g)))}";
         }
