@@ -86,10 +86,13 @@ namespace Dispel.CommandLine
                         foreach (var log in logs)
                         {
                             var existingContent = File.Exists(log.Filename) ? await File.ReadAllTextAsync(log.Filename) : null;
-                            if (log.Content == null && existingContent != null)
+                            if (log.Content == null)
                             {
-                                File.Delete(log.Filename);
-                                if (!quiet) Console.WriteLine($"Removed {log.Filename}.");
+                                if (existingContent != null)
+                                {
+                                    File.Delete(log.Filename);
+                                    if (!quiet) Console.WriteLine($"Removed {log.Filename}.");
+                                }
                             }
                             else if (!log.Content.Equals(existingContent))
                             {
