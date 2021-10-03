@@ -55,7 +55,6 @@ p.line {
 }
 
 /* index page elements */
-
 .session-grid {
     display: grid;
     grid-template-columns: auto auto auto 1fr;
@@ -68,4 +67,27 @@ p.line {
 
 .notes {
     font-style: italic;
+}
+
+/* misc styling options for custom use */
+@font-face {
+    font-family: Drac;
+    src: url('bloodrac.ttf');
+}
+
+@font-face {
+    font-family: Choco;
+    src: url('Chococooky.woff') format('woff');
+}
+
+.drac {
+    font-family: "Drac";
+}
+
+.choco {
+    font-family: "Choco";
+}
+
+.std {
+    font-style: initial;
 }
