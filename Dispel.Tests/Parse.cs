@@ -140,6 +140,14 @@ namespace Parse
             Assert.True(r.IsSuccess);
             Assert.Empty(r.Remainder);
         }
+
+        [Fact]
+        public void InitialConnectPragma()
+        {
+            var text = "[12:26] #aurora created on Fri Jan 03 22:56:14 2020";
+            var r = LineParser.Pragma(text);
+            Assert.True(r.IsSuccess);
+        }
     }
 
 //    public class Log

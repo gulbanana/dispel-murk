@@ -39,6 +39,8 @@ namespace Dispel
             Term(@".*"));
 
         public static readonly Parser Pragma = Sequence(
+            Optional(Skip(Timestamp)),
+            Optional(Skip(@"\s")),
             Skip(@"\#"),
             Term(@"\w+"),
             Optional(Skip(@"\s")),
