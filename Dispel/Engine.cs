@@ -84,7 +84,7 @@ namespace Dispel
                 sessionLines.Clear();
             }
 
-            previousSessionIdent = sessionIdent;
+            previousSessionIdent = sessionIdent ?? previousSessionIdent;
             sessionIdent = null;
             sessionStart = null;
             sessionEnd = null;
