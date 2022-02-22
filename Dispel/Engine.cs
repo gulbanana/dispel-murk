@@ -46,6 +46,23 @@ namespace Dispel
         {
             var generator = Formats.GetGenerator(format, options);
             var sessions = await GetSessions(input);
+
+            if (options.WordCount)
+            {
+                var lines = sessions.SelectMany(s => s.Body);
+                Console.WriteLine("Line count: {0}", lines.Count());
+                foreach (var g in lines.GroupBy(l => l.Username).Where(g => g.Count() > 10).OrderByDescending(g => g.Count()))
+                {
+                    Console.WriteLine($"    {g.Key}: {g.Count()}");
+                }
+
+                Console.WriteLine("Word count: {0}", lines.SelectMany(l => l.Message?.Runs ?? Array.Empty<Run>()).SelectMany(r => r.Text.Split()).Count());
+                foreach (var g in lines.GroupBy(l => l.Username).Where(g => g.Count() > 10).OrderByDescending(g => g.SelectMany(l => l.Message?.Runs ?? Array.Empty<Run>()).SelectMany(r => r.Text.Split()).Count()))
+                {
+                    Console.WriteLine($"    {g.Key}: {g.SelectMany(l => l.Message?.Runs ?? Array.Empty<Run>()).SelectMany(r => r.Text.Split()).Count()}");
+                }
+            }
+
             var log = new Log(filename, sessions);
             return generator(log);
         }

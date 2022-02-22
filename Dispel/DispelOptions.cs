@@ -15,5 +15,6 @@ namespace Dispel
         public string[] Ignored { get; set; } = new string[] { "*", "->" };  // control node, private message
         public bool Verbose { get; set; }
         public FilterOptions Filters { get; set; }
+        public bool WordCount { get; set; }
     }
 }
