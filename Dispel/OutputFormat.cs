@@ -6,5 +6,6 @@
         WebPage,
         WebSite,
         Wiki,
+        StrippedLog
     }
 }

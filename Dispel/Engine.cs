@@ -143,7 +143,7 @@ namespace Dispel
                         switch(result.Tag)
                         {
                             case 1:
-                                ProcessMessage(result.Tree);
+                                ProcessMessage(line, result.Tree);
                                 break;
 
                             case 2:
@@ -209,7 +209,7 @@ namespace Dispel
 
         }
 
-        private void ProcessMessage(Parse.Node tree)
+        private void ProcessMessage(string original, Parse.Node tree)
         {
             if (DateTime.TryParse(sessionTime, out var parsedSessionTime) && 
                 DateTime.TryParse(sessionStart, out var parsedSessionStart) &&
@@ -249,6 +249,7 @@ namespace Dispel
                 }
 
                 var ast = new Line(
+                    original,
                     tree.Children[0].Text,
                     GetAlias(username),
                     new Message(runs)

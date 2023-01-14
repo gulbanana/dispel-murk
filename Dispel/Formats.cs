@@ -21,6 +21,9 @@ namespace Dispel
                 case OutputFormat.Wiki:
                     return "wiki.html";
 
+                case OutputFormat.StrippedLog:
+                    return "log";
+
                 default:
                     throw new NotSupportedException();
             }
@@ -41,6 +44,9 @@ namespace Dispel
 
                 case OutputFormat.Wiki:
                     return WikiGenerator.Format;
+
+                case OutputFormat.StrippedLog:
+                    return LogGenerator.Format;
 
                 default:
                     throw new NotSupportedException();
@@ -63,11 +69,14 @@ namespace Dispel
                 case "wiki":
                     return OutputFormat.Wiki;
 
+                case "stripped":
+                    return OutputFormat.StrippedLog;
+
                 default:
                     throw new NotSupportedException();
             }
         }
 
-        public static readonly string[] Names = new[] { "text", "page", "site", "wiki" };
+        public static readonly string[] Names = new[] { "text", "page", "site", "wiki", "stripped" };
     }
 }
