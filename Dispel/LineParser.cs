@@ -15,8 +15,9 @@ namespace Dispel
         public static readonly Parser AttributedText = Sequence(Set(Run), Skip(Optional(Attributes)));
 
         public static readonly Parser Timestamp = Term(@"\[(\d\d:\d\d)\]", m => m.Groups[1].Value);
-        public static readonly Parser ColoredUsername = Term(@"<\x03(\d\d?,\d\d?|\d\d?)[@+]?([\w|\[\]|-]+)\x0F>", m => m.Groups[2].Value);
-        public static readonly Parser UncoloredUsername = Term(@"<[@+]?([\w|\[\]|-]+)>", m => m.Groups[1].Value);
+        public static readonly Parser RawUsername = Term(@"[@+]?([\w|\-|\[\]|~]+)", m => m.Groups[1].Value);
+        public static readonly Parser ColoredUsername = Decorated(1, Term(@"<\x03(\d\d?,\d\d?|\d\d?)"), RawUsername, Term(@"\x0F>"));
+        public static readonly Parser UncoloredUsername = Decorated(1, Term(@"<"), RawUsername, Term(@">"));
         public static readonly Parser Username = Any(UncoloredUsername, ColoredUsername);
 
         public static readonly Parser Line = Sequence(

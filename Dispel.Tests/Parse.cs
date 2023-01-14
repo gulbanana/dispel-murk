@@ -103,6 +103,22 @@ namespace Parse
             var r = LineParser.Username(line);
             Assert.True(r.IsSuccess);
         }
+
+        [Fact]
+        public void MultipartRaw()
+        {
+            var line = "autopsy-turvey";
+            var r = LineParser.RawUsername(line);
+            Assert.True(r.IsSuccess);
+        }
+
+        [Fact]
+        public void MultipartWrapped()
+        {
+            var line = "<autopsy-turvey>";
+            var r = LineParser.UncoloredUsername(line);
+            Assert.True(r.IsSuccess);
+        }
     }
 
     public class Line

@@ -94,6 +94,31 @@ namespace Dispel.Parse
             };
         }
 
+        public static Parser Decorated(int extractAt, params Parser[] parsers)
+        {
+            return text =>
+            {
+                var nodes = new List<Node>();
+
+                foreach (var p in parsers)
+                {
+                    var r = p(text);
+                    if (!r.IsSuccess) return r;
+                    if (r.Tree.Type != NodeType.Empty) nodes.Add(r.Tree);
+                    text = r.Remainder;
+                }
+
+                if (!nodes.Any())
+                {
+                    return ParseResult.None(text);
+                }
+                else
+                {
+                    return ParseResult.Success(nodes.ElementAt(extractAt), text);
+                }
+            };
+        }
+
         /// <summary>0 or more</summary>
         public static Parser Set(Parser parser)
         {
