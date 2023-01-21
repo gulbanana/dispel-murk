@@ -32,7 +32,7 @@ namespace Dispel
         // XXX only works for single-file formats
         public async Task ConvertSingleAsync(string filename, Stream input, Stream output, OutputFormat format)
         {
-            var outputFiles = await ConvertAsync(filename, input, format);
+            var outputFiles = await ConvertAsync(format, filename, input);
             var outputText = outputFiles.Single().Content;
 
             using (var writer = new StreamWriter(output))
@@ -42,10 +42,19 @@ namespace Dispel
             }
         }
 
-        public async Task<OutputFile[]> ConvertAsync(string filename, Stream input, OutputFormat format)
+        public async Task<OutputFile[]> ConvertAsync(OutputFormat format, params (string filename, Stream input)[] files)
         {
             var generator = Formats.GetGenerator(format, options);
-            var sessions = await GetSessions(input);
+            var sessions = new List<Session>();
+            foreach (var f in files)
+            {
+                var fileSessions = await GetSessions(f.input);
+                if (fileSessions.Count == 1 && fileSessions.Single().Ident == null)
+                {
+                    fileSessions.Single().Ident = Path.GetFileNameWithoutExtension(f.filename);
+                }
+                sessions.AddRange(fileSessions);
+            }
 
             if (options.WordCount)
             {
@@ -63,8 +72,13 @@ namespace Dispel
                 }
             }
 
-            var log = new Log(filename, sessions);
+            var log = new Log(files.First().filename, sessions);
             return generator(log);
+        }
+
+        public Task<OutputFile[]> ConvertAsync(OutputFormat format, string filename, Stream input)
+        {
+            return ConvertAsync(format, (filename, input));
         }
 
         private void FlushSession()
@@ -91,7 +105,9 @@ namespace Dispel
         }
         
         private async Task<List<Session>> GetSessions(Stream input)
-        { 
+        {
+            sessions.Clear();
+
             using (var reader = new StreamReader(input))            
             {
                 var inServerBlock = false;

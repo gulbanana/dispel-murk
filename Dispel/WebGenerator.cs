@@ -94,7 +94,7 @@ namespace Dispel
         {
             if (!Filter(session))
             {
-                return new OutputFile($"{session.Ident}-{index}.html", null);
+                return new OutputFile((options.NoIndex && !string.IsNullOrEmpty(session.Ident)) ? $"{session.Ident}.html" : $"{session.Ident}-{index}.html", null);
             }
 
             var bodyContent = "<div class='log-grid'>" + Environment.NewLine
@@ -102,7 +102,7 @@ namespace Dispel
                             + "</div>" + Environment.NewLine;
 
             return new OutputFile(
-                $"{session.Ident}-{index}.html",
+                (options.NoIndex && !string.IsNullOrEmpty(session.Ident)) ? $"{session.Ident}.html" : $"{session.Ident}-{index}.html",
                 prefix + stylesheet + bodyContent
             );
         }
@@ -213,7 +213,7 @@ namespace Dispel
             var links = sessions
                 .Select(t => {
                     var (s, ix) = t;
-                    var name = $"{s.Ident}-{ix}.html";
+                    var name = (options.NoIndex && !string.IsNullOrEmpty(s.Ident)) ? $"{s.Ident}.html" : $"{s.Ident}-{ix}.html";
                     var url = Uri.EscapeDataString(name);
                     var date = s.StartTime;
                     var participants = s.Body

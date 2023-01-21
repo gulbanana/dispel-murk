@@ -17,11 +17,12 @@ namespace Dispel.CommandLine
             {                
                 new Option<bool>(new[]{"q", "quiet"}, "suppress output"),
                 new Option<bool>(new[]{"s", "single-file"}, "generate combined single-file output"),
+                new Option<bool>(new[]{"m", "multiple-file"}, "combine all files into a single input"),
                 new Option<string>(new[]{"o", "output-format"}, () => "site", "(page|site|text|wiki|stripped|all)"),
                 new Argument<string[]>("logs", "log files to convert") { Arity = ArgumentArity.ZeroOrMore }
             };
             
-            command.Handler = CommandHandler.Create<bool, bool, string, string[]>(async (quiet, single, outputFormat, logs) =>
+            command.Handler = CommandHandler.Create<bool, bool, bool, string, string[]>(async (quiet, single, multiple, outputFormat, logs) =>
             {
                 if (!logs.Any())
                 {
@@ -42,22 +43,22 @@ namespace Dispel.CommandLine
 
                 if (outputFormat == "all")
                 {
-                    foreach (var format in new[] { OutputFormat.WebPage, OutputFormat.Text, OutputFormat.Wiki })
+                    foreach (var format in Enum.GetValues(typeof(OutputFormat)))
                     {
-                        await ConvertAsync(format, logs, quiet, single);
+                        await ConvertAsync((OutputFormat)format, logs, quiet, single, multiple);
                     }
                 }
                 else
                 {
                     var format = Formats.Parse(outputFormat);
-                    await ConvertAsync(format, logs, quiet, single);
+                    await ConvertAsync(format, logs, quiet, single, multiple);
                 }
             });
 
             await command.InvokeAsync(args);
         }
 
-        private static async Task ConvertAsync(OutputFormat format, IReadOnlyList<string> logPaths, bool quiet, bool single)
+        private static async Task ConvertAsync(OutputFormat format, IReadOnlyList<string> logPaths, bool quiet, bool single, bool multiple)
         {
             var config = new ConfigurationBuilder()
                 .SetBasePath(Environment.CurrentDirectory)
@@ -66,53 +67,106 @@ namespace Dispel.CommandLine
 
             var options = config.Get<DispelOptions>() ?? new DispelOptions();
 
-            foreach (var logPath in logPaths)
+            if (multiple)
             {
-                if (!File.Exists(logPath))
+                var inputFiles = new List<string>();
+                foreach (var logPath in logPaths)
                 {
-                    if (!quiet) Console.WriteLine($"File not found: {logPath}!");
-                    continue;
+                    if (!File.Exists(logPath))
+                    {
+                        if (!quiet) Console.WriteLine($"File not found: {logPath}!");
+                        continue;
+                    }
+
+                    var inputFile = Path.GetFullPath(logPath);
+                    inputFiles.Add(inputFile);
+                    if (!quiet) Console.WriteLine($"Processing {inputFile}...");
                 }
 
-                var inputFile = Path.GetFullPath(logPath);
-                if (!quiet) Console.WriteLine($"Processing {inputFile}...");
+                var inputStreams = inputFiles.Select(f => (name: Path.GetFileName(f), file: File.Open(f, FileMode.Open, FileAccess.Read, FileShare.ReadWrite) as Stream)).ToList();
 
                 var engine = new Engine(options);
                 if (!single)
                 {
-                    using (var inputStream = File.Open(inputFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                    var logs = await engine.ConvertAsync(format, inputStreams.ToArray());
+                    foreach (var log in logs)
                     {
-                        var logs = await engine.ConvertAsync(Path.GetFileName(inputFile), inputStream, format);
-                        foreach (var log in logs)
+                        var existingContent = File.Exists(log.Filename) ? await File.ReadAllTextAsync(log.Filename) : null;
+                        if (log.Content == null)
                         {
-                            var existingContent = File.Exists(log.Filename) ? await File.ReadAllTextAsync(log.Filename) : null;
-                            if (log.Content == null)
+                            if (existingContent != null)
                             {
-                                if (existingContent != null)
-                                {
-                                    File.Delete(log.Filename);
-                                    if (!quiet) Console.WriteLine($"Removed {log.Filename}.");
-                                }
+                                File.Delete(log.Filename);
+                                if (!quiet) Console.WriteLine($"Removed {log.Filename}.");
                             }
-                            else if (!log.Content.Equals(existingContent))
-                            {
-                                await File.WriteAllTextAsync(log.Filename, log.Content);
-                                if (!quiet) Console.WriteLine($"{(existingContent == null ? "Created" : "Updated")} {log.Filename}.");
-                            }
+                        }
+                        else if (!log.Content.Equals(existingContent))
+                        {
+                            await File.WriteAllTextAsync(log.Filename, log.Content);
+                            if (!quiet) Console.WriteLine($"{(existingContent == null ? "Created" : "Updated")} {log.Filename}.");
                         }
                     }
                 }
                 else
                 {
-                    var outputFile = Path.ChangeExtension(inputFile, Formats.GetFileExtension(format));
-                    using (var inputStream = File.Open(inputFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                    throw new NotImplementedException();
+                }
+
+                foreach (var stream in inputStreams)
+                {
+                    stream.file.Dispose();
+                }
+            }
+            else
+            {
+                foreach (var logPath in logPaths)
+                {
+                    if (!File.Exists(logPath))
                     {
-                        using (var outputStream = File.OpenWrite(outputFile))
+                        if (!quiet) Console.WriteLine($"File not found: {logPath}!");
+                        continue;
+                    }
+
+                    var inputFile = Path.GetFullPath(logPath);
+                    if (!quiet) Console.WriteLine($"Processing {inputFile}...");
+
+                    var engine = new Engine(options);
+                    if (!single)
+                    {
+                        using (var inputStream = File.Open(inputFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                         {
-                            await engine.ConvertSingleAsync(Path.GetFileName(inputFile), inputStream, outputStream, format);
+                            var logs = await engine.ConvertAsync(format, Path.GetFileName(inputFile), inputStream);
+                            foreach (var log in logs)
+                            {
+                                var existingContent = File.Exists(log.Filename) ? await File.ReadAllTextAsync(log.Filename) : null;
+                                if (log.Content == null)
+                                {
+                                    if (existingContent != null)
+                                    {
+                                        File.Delete(log.Filename);
+                                        if (!quiet) Console.WriteLine($"Removed {log.Filename}.");
+                                    }
+                                }
+                                else if (!log.Content.Equals(existingContent))
+                                {
+                                    await File.WriteAllTextAsync(log.Filename, log.Content);
+                                    if (!quiet) Console.WriteLine($"{(existingContent == null ? "Created" : "Updated")} {log.Filename}.");
+                                }
+                            }
                         }
                     }
-                    if (!quiet) Console.WriteLine($"Created {outputFile}.");
+                    else
+                    {
+                        var outputFile = Path.ChangeExtension(inputFile, Formats.GetFileExtension(format));
+                        using (var inputStream = File.Open(inputFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                        {
+                            using (var outputStream = File.OpenWrite(outputFile))
+                            {
+                                await engine.ConvertSingleAsync(Path.GetFileName(inputFile), inputStream, outputStream, format);
+                            }
+                        }
+                        if (!quiet) Console.WriteLine($"Created {outputFile}.");
+                    }
                 }
             }
         }

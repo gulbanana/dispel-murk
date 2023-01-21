@@ -7,7 +7,7 @@ namespace Dispel.AST
 {
     public class Session
     {
-        public readonly string Ident;
+        public string Ident;
         public readonly Line[] Body;
         public readonly string StartTime;
         public readonly string EndTime;

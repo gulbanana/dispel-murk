@@ -23,7 +23,7 @@ Session Close: Tue Jan 03 18:33:05 2017
 
         using var input = new MemoryStream(Encoding.UTF8.GetBytes(emptyLog));
         var engine = new Engine(new());        
-        var logs = await engine.ConvertAsync("#foo.log", input, OutputFormat.WebSite);
+        var logs = await engine.ConvertAsync(OutputFormat.WebSite, "#foo.log", input);
 
         Assert.Collection(logs.OrderBy(f => f.Filename),
             f => Assert.Equal("index.html", f.Filename),
@@ -38,7 +38,7 @@ Session Close: Tue Jan 03 18:33:05 2017
 
         using var input = new MemoryStream(Encoding.UTF8.GetBytes(emptyLog));
         var engine = new Engine(new());
-        var logs = await engine.ConvertAsync("#foo.log", input, OutputFormat.WebPage);
+        var logs = await engine.ConvertAsync(OutputFormat.WebPage, "#foo.log", input);
 
         Assert.Collection(logs,
             f => Assert.Equal("#foo.html", f.Filename)
@@ -52,7 +52,7 @@ Session Close: Tue Jan 03 18:33:05 2017
 
         using var input = new MemoryStream(Encoding.UTF8.GetBytes(emptyLog));
         var engine = new Engine(new());
-        var logs = await engine.ConvertAsync("#foo.log", input, OutputFormat.WebSite);
+        var logs = await engine.ConvertAsync(OutputFormat.WebSite, "#foo.log", input);
 
         Assert.Collection(logs.OrderBy(f => f.Filename),
             f => Assert.Equal("#Foo-0.html", f.Filename),

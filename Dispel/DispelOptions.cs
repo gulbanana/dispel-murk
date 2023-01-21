@@ -16,5 +16,6 @@ namespace Dispel
         public bool Verbose { get; set; }
         public FilterOptions Filters { get; set; }
         public bool WordCount { get; set; }
+        public bool NoIndex { get; set; }
     }
 }
