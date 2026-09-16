@@ -111,10 +111,9 @@ namespace Dispel
             using (var reader = new StreamReader(input))            
             {
                 var inServerBlock = false;
-                while (!reader.EndOfStream)
+                string line;
+                while ((line = await reader.ReadLineAsync()) != null)
                 {
-                    var line = await reader.ReadLineAsync();
-
                     if (line.Length == 0)
                     {
                         continue;

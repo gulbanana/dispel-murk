@@ -10,7 +10,7 @@ Version control is **Jujutsu (`jj`)**, not git. There is no `.git` directory; th
 
 ## Commands
 
-All projects target `net8.0`; the installed SDK is newer and builds them fine.
+All projects target `net10.0`.
 
 ```sh
 dotnet build dispel-murk.sln
